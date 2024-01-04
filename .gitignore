@@ -128,5 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
 # WebStorm
 .idea
+# Python
+*.pyc
