@@ -4,7 +4,9 @@ $title-color: #C7B48E;
     font-family: "Genshin Font";
     src: url("../font/GenshinFont.ttf") format("truetype");
 }
-
+body {
+    background-image: "../pic/genshin_chat demo.jpg";
+}
 .gradio-container {
     display: flex;
     flex-direction: column;

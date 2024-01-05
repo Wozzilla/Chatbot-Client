@@ -1,0 +1,8 @@
+{
+  "OpenAI": {
+    "api_link": "",
+    "api_key": "",
+    "gpt_model": "gpt-3.5-turbo",
+    "asr_model": "whisper-1"
+  }
+}

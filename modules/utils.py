@@ -1,9 +1,9 @@
 import json
 from enum import Enum
 
-with open('settings.json') as f:
-    Settings = json.load(f)
-    assert isinstance(Settings, dict)
+with open('config.json') as f:
+    Configs = json.load(f)
+    assert isinstance(Configs, dict)
 
 
 class BotEnum(Enum):
@@ -11,3 +11,8 @@ class BotEnum(Enum):
     CHATGPT = 0
     CHATGLM = 1
     CHATGLM_FINE_TUNE = 2
+
+
+class ASREnum(Enum):
+    """语音识别类型枚举"""
+    WHISPER = 0
