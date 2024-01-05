@@ -8,8 +8,6 @@ asrEntity = Whisper(Configs["OpenAI"])
 with gr.Blocks(
         title="NLG Project",
         theme=gr.themes.Soft(),
-        css="/assets/css/GenshinChat.css",
-        js="/assets/js/GenshinChat.js",
 ) as demo:
     botComponent = gr.Chatbot()
     inputTextbox = gr.Textbox()
