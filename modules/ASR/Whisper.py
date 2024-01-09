@@ -15,7 +15,7 @@ class Whisper:
         self.api_key = OpenAI_config.get("api_key", None)
         self.botType = ASREnum.WHISPER
         self.prompt = None  # 暂时先不启用prompt
-        self.model = OpenAI_config.get("asr_model", "gpt-3.5-turbo")
+        self.model = OpenAI_config.get("asr_model", "whisper-1")
         if not self.api_key:
             raise ValueError("Whisper api_key is not set! Please check your 'config.json' file.")
         self.client = OpenAI(api_key=self.api_key)
@@ -30,7 +30,7 @@ class Whisper:
         """
         audioFile = open(audioPath, "rb")
         transcript = self.client.audio.transcriptions.create(
-            model="",
+            model=self.model,
             file=audioFile,
             response_format="text"
         )
