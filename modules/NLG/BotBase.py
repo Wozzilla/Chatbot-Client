@@ -1,3 +1,4 @@
+"""该文件声明了聊天机器人的基类"""
 from abc import abstractmethod
 from modules.utils import BotEnum
 
@@ -11,12 +12,11 @@ class BotBase:
         self.prompt = prompt  # 提示语(用于指定机器人的身份，有助于提高针对特定领域问题的效果)
 
     @abstractmethod
-    def singleQuery(self, message: str, hostory: [[str, str]] = None, prompt: str = None) -> str:
+    def singleQuery(self, message: str, prompt: str = None) -> str:
         """
         简单地进行单次查询，详细文档请参考各子类的实现
 
         :param message: str 用户输入的消息
-        :param hostory: [[str, str]...] 分别为用户输入和机器人回复(先前的)
         :param prompt: str 提示语(用于指定机器人的身份，有助于提高针对特定领域问题的效果)
         :return: 响应结果
         """

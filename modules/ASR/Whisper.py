@@ -17,7 +17,7 @@ class Whisper:
         self.prompt = None  # 暂时先不启用prompt
         self.model = OpenAI_config.get("asr_model", "whisper-1")
         if not self.api_key:
-            raise ValueError("Whisper api_key is not set! Please check your 'config.json' file.")
+            raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")
         self.client = OpenAI(api_key=self.api_key)
 
     def asr(self, audioPath) -> str:

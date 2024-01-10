@@ -30,7 +30,6 @@ class APIWrapper:
             description: dict = None,
             timeZone: int = 8,
             port: int = 5000,
-            returnType: str = "json",
             version: str = "1.0-alpha",
             listen: bool = True
     ):
@@ -49,7 +48,6 @@ class APIWrapper:
         if not self.secretKey:
             warnings.warn("No valid secret set, your API is not secure!", RuntimeWarning)
         self.port = port
-        self.returnType = returnType
         self.version = version
         self.host = "0.0.0.0" if listen else "127.0.0.1"
 
@@ -96,37 +94,17 @@ class APIWrapper:
                 ]
             }, 200
 
-        @self.flaskApp.errorhandler(404)
-        def error404(e):
+        @self.flaskApp.errorhandler(Exception)
+        def error(e):
             """
-            404错误处理
+            各种网络异常处理
             :param e: InternalServerError
             :return: {{time: str, content: dict}, 404}
             """
             return {
                 "time": self.getISOTime(),
-                "content": {
-                    "code": e.code,
-                    "description": e.description,
-                    "name": e.name
-                }
-            }, 404
-
-        @self.flaskApp.errorhandler(500)
-        def error500(e):
-            """
-            服务器错误处理
-            :param e: InternalServerError
-            :return: {{time: str, content: dict}, 500}
-            """
-            return {
-                "time": self.getISOTime(),
-                "content": {
-                    "code": e.code,
-                    "description": e.description,
-                    "name": e.name
-                }
-            }, 500
+                "content": {"code": e.code, "description": e.description, "name": e.name}
+            }, e.code
 
     def run(self):
         """

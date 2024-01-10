@@ -1,9 +1,9 @@
-import json
+"""嗯...本文件中声明了一些常用的函数"""
+from json import load
 from enum import Enum
 
 with open('config.json') as f:
-    Configs = json.load(f)
-    assert isinstance(Configs, dict)
+    Configs = load(f)
 
 
 class BotEnum(Enum):
