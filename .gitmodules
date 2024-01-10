@@ -1,3 +1,6 @@
 [submodule "modules/ASR/Whisper-Finetune"]
 	path = modules/ASR/Whisper-Finetune
 	url = https://github.com/YNU-IST-Project-Chatbot/Whisper-Finetune
+[submodule "modules/NLG/ChatGLM3"]
+	path = modules/NLG/ChatGLM3
+	url = https://github.com/YNU-IST-Project-Chatbot/ChatGLM3
