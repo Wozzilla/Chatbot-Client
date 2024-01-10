@@ -152,9 +152,9 @@ class APIWrapper:
 
         def decorator(func):
             """
-
-            :param func:
-            :return:
+            内部包装器
+            :param func: function 被装饰的函数
+            :return: function 被装饰的函数
             """
             self.flaskApp.add_url_rule(route, func.__name__, func, methods=methods)
             return func
