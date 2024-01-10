@@ -28,6 +28,7 @@ class ChatGPT(BotBase):
         :param message: str 本次用户输入
         :param history: [[str, str]...] 分别为用户输入和机器人回复(先前的)
         :param prompt: str 提示语(用于指定机器人的身份，有助于提高针对特定领域问题的效果)
+        :return str 对本次聊天的回复内容
         """
         sessionPrompt = prompt if prompt else self.prompt
         if sessionPrompt:

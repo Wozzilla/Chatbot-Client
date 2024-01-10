@@ -4,5 +4,12 @@
     "api_key": "",
     "gpt_model": "gpt-3.5-turbo",
     "asr_model": "whisper-1"
+  },
+  "ChatGLM": {
+    "mode": "remote",
+    "model": "ChatGLM3",
+    "host": "http://10.103.4.65:5000",
+    "response_type": "json",
+    "secret": ""
   }
 }
