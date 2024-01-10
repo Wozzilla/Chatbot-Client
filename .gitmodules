@@ -4,3 +4,6 @@
 [submodule "modules/NLG/ChatGLM3"]
 	path = modules/NLG/ChatGLM3
 	url = https://github.com/YNU-IST-Project-Chatbot/ChatGLM3
+[submodule "modules/TTS/FastSpeech2"]
+	path = modules/TTS/FastSpeech2
+	url = https://github.com/YNU-IST-Project-Chatbot/FastSpeech2
