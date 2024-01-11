@@ -1,6 +1,6 @@
 """该文件声明一个ChatGLM类，用于调用ChatGLM模型进行问答"""
 from urllib.parse import urljoin
-from requests import get, post, exceptions
+import requests
 from modules.NLG.BotBase import BotBase
 from modules.utils import BotEnum
 
@@ -29,11 +29,11 @@ class ChatGLM(BotBase):
         :return: bool 是否连接成功
         """
         try:
-            request = get(url=self.host, params={"secret": self.secret}, timeout=5)
+            request = requests.get(url=self.host, params={"secret": self.secret}, timeout=5)
             return request.status_code == 200
-        except exceptions.Timeout:
+        except requests.exceptions.Timeout:
             raise TimeoutError("Connection to ChatGLM timed out, please check your network status.")
-        except exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError:
             raise ConnectionError("Connection to ChatGLM failed, please check your host and secret.")
         finally:
             print("ChatGLM remote mode connection check finished.")
@@ -48,7 +48,7 @@ class ChatGLM(BotBase):
         :return: str 对本次聊天的回复内容
         """
         sessionPrompt = prompt if prompt else self.prompt
-        response = post(
+        response = requests.post(
             url=urljoin(self.host, 'singleQuery'),
             params={"secret": self.secret},
             json={"prompt": sessionPrompt, "message": message},
@@ -72,7 +72,7 @@ class ChatGLM(BotBase):
         for chat in history:
             sessionHistory.append({"role": "user", "content": chat[0]})
             sessionHistory.append({"role": "assistant", "content": chat[1]})
-        response = post(
+        response = requests.post(
             url=urljoin(self.host, 'continuedQuery'),
             params={"secret": self.secret},
             json={"history": sessionHistory, "message": message},
