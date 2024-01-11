@@ -1,5 +1,8 @@
 from openai import OpenAI
 from modules.utils import ASREnum
+from transformers import pipeline
+import numpy as np
+
 
 __doc__ = """该文件尝试调用OpenAI Whisper API，在进行前端调试时作为后端使用"""
 
@@ -35,3 +38,16 @@ class Whisper:
             response_format="text"
         )
         return transcript
+
+class Transcriber:
+    def __init__(self):
+        self.transcriber = pipeline(
+            "automatic-speech-recognition", model="models/whisper-tiny-finetune"
+        )
+
+    def transcribe(audio):
+    sr, y = audio
+    y = y.astype(np.float32)
+    y /= np.max(np.abs(y))
+
+    return transcriber({"sampling_rate": sr, "raw": y})["text"]
