@@ -1,15 +1,15 @@
 """本文件为整个项目的主文件，并使用gradio搭建界面"""
 import gradio as gr
-from modules.NLG.ChatGLM import ChatGLM
+from modules.NLG.ChatGPT import ChatGPT
 from modules.ASR.Whisper import Whisper
 from modules.utils import Configs
 
-chatbotEntity = ChatGLM(Configs["ChatGLM"])
-asrEntity = Whisper(Configs["OpenAI"])
+chatbotEntity = ChatGPT(Configs["OpenAI"])
+asrEntity = Whisper(Configs["Whisper"])
 with gr.Blocks(title="NLG Project", theme=gr.themes.Soft()) as demo:
     botComponent = gr.Chatbot()
     inputTextbox = gr.Textbox()
-    audioComponent = gr.Audio(sources=["microphone"], type="filepath")
+    audioComponent = gr.Audio(sources=["microphone"])
     asrButton = gr.Button(value="🎤识别")
     clearButton = gr.ClearButton([inputTextbox, botComponent], value="🧹清除")
 

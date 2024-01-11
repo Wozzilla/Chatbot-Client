@@ -9,5 +9,11 @@
     "model": "ChatGLM3",
     "host": "",
     "secret": ""
+  },
+  "Whisper": {
+    "mode": "remote",
+    "model": "Whiper-Finetune",
+    "host": "",
+    "secret": ""
   }
 }

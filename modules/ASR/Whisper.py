@@ -1,53 +1,56 @@
-from openai import OpenAI
+"""该文件声明一个Whisper类，用于调用Whisper-Finetune模型进行问答"""
+import requests
+from urllib.parse import urljoin
+
 from modules.utils import ASREnum
-from transformers import pipeline
-import numpy as np
-
-
-__doc__ = """该文件尝试调用OpenAI Whisper API，在进行前端调试时作为后端使用"""
 
 
 class Whisper:
     """
-    通过API调用Whisper进行语音识别
-
-    API文档参考：https://platform.openai.com/docs/guides/speech-to-text?lang=python
+    调用Whisper-Finetune模型进行语音识别
     """
 
-    def __init__(self, OpenAI_config: dict):
-        self.api_key = OpenAI_config.get("api_key", None)
-        self.botType = ASREnum.WHISPER
-        self.prompt = None  # 暂时先不启用prompt
-        self.model = OpenAI_config.get("asr_model", "whisper-1")
-        if not self.api_key:
-            raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")
-        self.client = OpenAI(api_key=self.api_key)
+    def __init__(self, Whisper_config: dict):
+        self.host, self.secret = None, None
+        self.mode = Whisper_config.get("mode", "remote")
+        if self.mode == "remote":
+            self.host = Whisper_config.get("host", None)
+            self.secret = Whisper_config.get("secret", None)
+            if not self.host:
+                raise ValueError("Whisper host is not set! Please check your 'config.json' file.")
+            self.checkConnection()
+        else:
+            raise NotImplementedError("Whisper local mode is not implemented yet!")
 
-    def asr(self, audioPath) -> str:
+    def checkConnection(self):
+        """
+        检查与远端Whisper的连接状态
+        :return: bool 是否连接成功
+        """
+        try:
+            request = requests.get(url=self.host, params={"secret": self.secret}, timeout=5)
+            return request.status_code == 200
+        except requests.exceptions.Timeout:
+            raise TimeoutError("Connection to Whisper timed out, please check your network status.")
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("Connection to Whisper failed, please check your host and secret.")
+        finally:
+            print("Whisper remote mode connection check finished.")
+
+    def asr(self, audioData: tuple) -> str:
         """
         语音识别
 
         该方法调用OpenAI的语音识别API，将语音文件转换为文本。
-        :param audioPath: str 语音文件路径
+        :param audioData: tuple[int, np.array] 语音数据，分别为采样率和以np.array形式存储的采样数据
         :return: str 识别结果
         """
-        audioFile = open(audioPath, "rb")
-        transcript = self.client.audio.transcriptions.create(
-            model=self.model,
-            file=audioFile,
-            response_format="text"
+        # TODO: 待测试
+        sampleRate, audio = audioData
+        audio = audio.tolist()
+        response = requests.post(
+            url=urljoin(self.host, 'asr'),
+            params={"secret": self.secret},
+            json={"sampling_rate": sampleRate, "raw": audio}
         )
-        return transcript
-
-class Transcriber:
-    def __init__(self):
-        self.transcriber = pipeline(
-            "automatic-speech-recognition", model="models/whisper-tiny-finetune"
-        )
-
-    def transcribe(audio):
-    sr, y = audio
-    y = y.astype(np.float32)
-    y /= np.max(np.abs(y))
-
-    return transcriber({"sampling_rate": sr, "raw": y})["text"]
+        return response.json().get("content", "")

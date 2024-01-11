@@ -16,3 +16,4 @@ class BotEnum(Enum):
 class ASREnum(Enum):
     """语音识别类型枚举"""
     WHISPER = 0
+    WHISPER_FINE_TUNE = 1
