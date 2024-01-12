@@ -14,6 +14,10 @@
 
 ### 后端 FastSpeech2
 
+1. 克隆仓库：`git clone https://github.com/YNU-IST-Project-Chatbot/FastSpeech2.git`
+2. 安装该仓库的依赖：`pip install -r requirements.txt`
+3. 通过`python -u tts_server.py`启动服务
+
 ### 前端 gradio
 
 1. 安装依赖：`pip install gradio requests --upgrade`，如需使用ChatGPT或Whisper请额外安装`pip install OpenAI --upgrade`
