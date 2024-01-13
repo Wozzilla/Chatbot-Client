@@ -4,24 +4,35 @@ import warnings
 from datetime import datetime, timezone, timedelta
 
 from flask import Flask
+from werkzeug.exceptions import HTTPException
 
 
 class APIWrapper:
     """
-    使用Flask将后端封装为API形式，以实现远程调用
+    使用Flask将任意后端封装为API形式，以实现远程调用
 
     若需要启用secret，请以Get参数(secret=...)的形式携带
     """
+    # noinspection SqlNoDataSourceInspection
     defaultDescription = {
         "title": "It's a simple API.",
         "content": [
-            "This is a developing and temporary “API wrapper” based on Flask.",
-            "This class will allow you to wrap Python code as an API for simple server setup",
-            "This class was originally used in the 'YNU-IST Project Chatbot' project to solve the problem of not "
-            "being able to run all models on a single computer",
-            "If you like it, you can star our chatbot project in <https://github.com/YNU-IST-Project-Chatbot/Chatbot>"
+            [
+                "这是一个基于Flask开发的API包装器，您可以利用它轻松地将您的Python代码包装为API，以服务器的形式运行（当然，前提是您的IP能否被访问）。",
+                "这个类最初用于“YNU-IST Project Chatbot”项目，以解决单台计算机无法部署全部服务的需求。",
+                "您可以在<https://github.com/YNU-IST-Project-Chatbot/Chatbot/wiki/APIWrapper>中查看详细用法。",
+                "如果您喜欢，希望您能为我们的项目<https://github.com/YNU-IST-Project-Chatbot/Chatbot>点一个star！"
+            ],
+            [
+                "This is an API wrapper developed based on Flask.",
+                "With it, you can easily wrap your Python code as an API and run it as a server (provided, of course, that your IP can be accessed).",
+                "This class was initially used in the 'YNU-IST Project Chatbot' project to address the need for deploying all services on a single computer.",
+                "You can find detailed usage instructions at <https://github.com/YNU-IST-Project-Chatbot/Chatbot/wiki/APIWrapper>.",
+                "If you find it helpful, we would appreciate it if you could give a star to our project at <https://github.com/YNU-IST-Project-Chatbot/Chatbot>."
+            ]
         ],
-        "author": "Steven-Zhl"
+        "author": "@Steven-Zhl",
+        "Co-author": ["@Aut0matas", "@ShirokaneShizuku", "@YukiShionji", "@wanlan5201314"]
     }
 
     def __init__(
@@ -52,9 +63,10 @@ class APIWrapper:
         self.host = "0.0.0.0" if listen else "127.0.0.1"
 
         self.flaskApp = Flask(__name__)
-        self._basicRoute()  # 添加基本的路由规则
+        self._addBasicRoute()  # 添加基本的路由规则
+        self._addBasicErrorHandlers()  # 添加基本的错误处理
 
-    def _basicRoute(self):
+    def _addBasicRoute(self):
         """
         初始化一些基础的地址路由
         :return: None
@@ -79,6 +91,7 @@ class APIWrapper:
             """
             return {"time": self.getISOTime(), "version": self.version}, 200
 
+        # noinspection SqlNoDataSourceInspection
         @self.flaskApp.route('/love', methods=['GET'])
         def love():
             """
@@ -94,7 +107,8 @@ class APIWrapper:
                 ]
             }, 200
 
-        @self.flaskApp.errorhandler(Exception)
+    def _addBasicErrorHandlers(self):
+        @self.flaskApp.errorhandler(HTTPException)
         def error(e):
             """
             各种网络异常处理

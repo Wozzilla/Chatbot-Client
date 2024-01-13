@@ -1,28 +1,61 @@
 """本文件为整个项目的主文件，并使用gradio搭建界面"""
+from os import PathLike
+import subprocess
 import gradio as gr
-from modules.NLG.ChatGPT import ChatGPT
-from modules.ASR.Whisper import Whisper
+from modules.NLG.NLG import ChatGPT
+from modules.ASR.ASR import WhisperAPI
+from modules.TTS.TTS import OpenAITTS
 from modules.utils import Configs
 
 chatbotEntity = ChatGPT(Configs["OpenAI"])
-asrEntity = Whisper(Configs["Whisper"])
+asrEntity = WhisperAPI(Configs["OpenAI"])
+ttsEntity = OpenAITTS(Configs["OpenAI"])
+
 with gr.Blocks(title="NLG Project", theme=gr.themes.Soft()) as demo:
     botComponent = gr.Chatbot()
-    inputTextbox = gr.Textbox()
-    audioComponent = gr.Audio(sources=["microphone"])
-    asrButton = gr.Button(value="🎤识别")
-    clearButton = gr.ClearButton([inputTextbox, botComponent], value="🧹清除")
+
+    textInput = gr.Textbox(placeholder="请输入聊天内容", label="📃输入")
+    audioInput = gr.Audio(sources=["microphone"], label="录音", type="filepath")
+
+    submitButton = gr.Button(value="✉️发送")
+    voiceChatButton = gr.Button(value="🎤发送")
+    clearButton = gr.ClearButton([textInput, botComponent], value="🧹清除")
 
 
-    def chat(message, chat_history):
-        """与聊天机器人进行聊天"""
-        bot_message = chatbotEntity.continuedQuery(message, chat_history)
-        chat_history.append((message, bot_message))
-        return "", chat_history
+    def textChat(message, chatHistory):
+        """与聊天机器人进行文本聊天"""
+        botMessage = chatbotEntity.continuedQuery(message, chatHistory)
+        chatHistory.append((message, botMessage))
+        synthAudioPath = ttsEntity.synthesize(botMessage)
+
+        return "", chatHistory
 
 
-    asrButton.click(asrEntity.asr, [audioComponent], [inputTextbox])
-    inputTextbox.submit(chat, [inputTextbox, botComponent], [inputTextbox, botComponent])
+    def voiceChat(audio: PathLike):
+        """语音识别，并自动将识别结果发送"""
+        chatHistory = botComponent.value
+        transcript = asrEntity.transcribe(audio)  # 语音识别结果
+        botMessage = chatbotEntity.continuedQuery(transcript, chatHistory)
+        chatHistory.append((transcript, botMessage))
+        synthAudioPath = ttsEntity.synthesize(botMessage)
+        playProcess = subprocess.Popen(
+            ["ffplay", "-noborder", "-nodisp", "-autoexit", "-i", synthAudioPath],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True
+        )
+        try:
+            playProcess.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            print("FFplay timed out, please check if it is installed correctly.")
+        finally:
+            playProcess.terminate()
+        return "", chatHistory
+
+
+    submitButton.click(textChat, [textInput, botComponent], [textInput, botComponent])
+    textInput.submit(textChat, [textInput, botComponent], [textInput, botComponent])
+    voiceChatButton.click(voiceChat, [audioInput], [textInput, botComponent])
 
 if __name__ == "__main__":
     demo.launch()

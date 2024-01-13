@@ -1,5 +1,5 @@
 """此文件将本地Whisper模型包装成可远程调用的API"""
-from modules.APIWrapper import APIWrapper
+from APIWrapper import APIWrapper
 from transformers import pipeline
 from flask import request
 import numpy as np
@@ -9,12 +9,11 @@ if __name__ == "__main__":
     transcriber = pipeline("automatic-speech-recognition", model="models/whisper-tiny-finetune")
 
 
-    @api_app.addRoute('/asr', methods=['POST'])  # 定义一个路由，用于处理语音识别任务
+    @api_app.addRoute('/transcribe', methods=['POST'])  # 定义一个路由，用于处理语音识别任务
     def transcribe(self):
         """
         处理语音识别任务
         """
-        # TODO: 待测试
         secret = request.values.get('secret')  # 暂且不使用secret
         audio = request.get_json()
         sr = audio.get("sampling_rate", 48000)  # 采样率，默认为48kHz

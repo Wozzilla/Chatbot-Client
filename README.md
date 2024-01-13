@@ -20,6 +20,8 @@
 
 ### 前端 gradio
 
+> 请确保已安装ffplay，并配置好环境变量，否则可能无法播放语音。
+
 1. 安装依赖：`pip install gradio requests --upgrade`，如需使用ChatGPT或Whisper请额外安装`pip install OpenAI --upgrade`
 2. 配置相关信息(所有配置文件均在`config.json`中)
 3. 启动界面：`python -u gradio-app.py`
