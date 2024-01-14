@@ -5,14 +5,14 @@ from urllib.parse import urljoin
 import requests
 from openai import OpenAI
 
-from modules.utils import BotEnum
+from modules.utils import NLGEnum
 
 
 class NLGBase:
     """聊天机器人基类，建议在进行聊天机器人开发时继承该类"""
 
-    def __init__(self, botType: BotEnum, model: str, prompt: str = None):
-        self.botType = botType  # 机器人类型
+    def __init__(self, botType: NLGEnum, model: str, prompt: str = None):
+        self.type = botType  # 机器人类型
         self.model = model  # 机器人模型
         self.prompt = prompt  # 默认提示语(用于指定机器人的身份，有助于提高针对特定领域问题的效果)，优先级低于查询时传入的prompt
 
@@ -63,6 +63,7 @@ class ChatGLM(NLGBase):
     """
 
     def __init__(self, ChatGLM_config: dict, prompt: str = None):
+        super().__init__(NLGEnum.ChatGLM, ChatGLM_config.get("model", "ChatGLM3"), prompt)
         self.host, self.secret = None, None
         self.mode = ChatGLM_config.get("mode", "remote")
         if self.mode == "remote":
@@ -73,7 +74,6 @@ class ChatGLM(NLGBase):
             self.checkConnection()
         else:
             raise NotImplementedError("ChatGLM local mode is not implemented yet!")
-        super().__init__(BotEnum.CHATGLM, ChatGLM_config.get("model", "ChatGLM3"), prompt)
 
     def singleQuery(self, message: str, prompt: str = None) -> str:
         """
@@ -115,7 +115,7 @@ class ChatGLM(NLGBase):
                 url=urljoin(self.host, 'continuedQuery'),
                 params={"secret": self.secret},
                 json={"history": sessionHistory, "message": message},
-                timeout=20
+                timeout=100
             )
         except requests.exceptions.Timeout:
             raise TimeoutError("Connection to ChatGLM timed out, please check your network status.")
@@ -134,7 +134,8 @@ class ChatGLM(NLGBase):
                 params={"secret": self.secret},
                 timeout=10
             )
-            return response.status_code == 200
+            if not response.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
@@ -151,11 +152,11 @@ class ChatGPT(NLGBase):
     """
 
     def __init__(self, OpenAI_config: dict, prompt: str = None):
+        super().__init__(NLGEnum.ChatGPT, OpenAI_config.get("gpt_model", "gpt-3.5-turbo"), prompt)
         self.api_key = OpenAI_config.get("api_key", None)
         if not self.api_key:
             raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")
         self.host = OpenAI(api_key=self.api_key)
-        super().__init__(BotEnum.CHATGPT, OpenAI_config.get("gpt_model", "gpt-3.5-turbo"), prompt)
 
     def singleQuery(self, message: str, prompt: str = None) -> str:
         """
@@ -210,7 +211,8 @@ class ChatGPT(NLGBase):
                 },
                 timeout=10
             )
-            return response.status_code == 200
+            if not response.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:

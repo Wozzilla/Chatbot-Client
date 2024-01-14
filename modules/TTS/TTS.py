@@ -14,7 +14,7 @@ class TTSBase:
     """语音合成的后端类，所有语音合成后端都应该继承自该类"""
 
     def __init__(self, ttsType: TTSEnum, model: str):
-        self.ttsType = ttsType
+        self.type = ttsType
         self.model = model
         self.savePath = os.path.join(os.getcwd(), 'download').replace('\\', '/')  # 默认文件下载路径
         if not os.path.exists(self.savePath):
@@ -40,6 +40,7 @@ class FastSpeech(TTSBase):
     """
 
     def __init__(self, FastSpeech_config: dict):
+        super().__init__(TTSEnum.FastSpeech, FastSpeech_config.get("model", "FastSpeech"))
         self.host, self.secret = None, None
         self.mode = FastSpeech_config.get("mode", "remote")
         if self.mode == "remote":
@@ -51,7 +52,6 @@ class FastSpeech(TTSBase):
         else:
             # 暂未进行本地运行FastSpeech的开发(本地运行的话直接部署FastSpeech就好了，不需要这套框架)
             raise NotImplementedError("FastSpeech local mode is not implemented yet!")
-        super().__init__(TTSEnum.FASTSPEECH, FastSpeech_config.get("model", "FastSpeech"))
 
     def synthesize(self, text) -> str:
         """
@@ -88,7 +88,8 @@ class FastSpeech(TTSBase):
                 params={"secret": self.secret},
                 timeout=10
             )
-            return request.status_code == 200
+            if not request.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
@@ -105,12 +106,12 @@ class OpenAITTS(TTSBase):
     """
 
     def __init__(self, OpenAI_config: dict):
+        super().__init__(TTSEnum.OpenAI_TTS, OpenAI_config.get("tts_model", "tts-1"))
         self.api_key = OpenAI_config.get("api_key", None)
         if not self.api_key:
             raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")
         self.voice = OpenAI_config.get("voice", "nova")
         self.host = OpenAI(api_key=self.api_key)
-        super().__init__(TTSEnum.OPENAI_TTS, OpenAI_config.get("tts_model", "tts-1"))
 
     def synthesize(self, text) -> str:
         """
@@ -150,7 +151,8 @@ class OpenAITTS(TTSBase):
                 },
                 timeout=10
             )
-            return response.status_code == 200
+            if not response.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:

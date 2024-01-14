@@ -18,7 +18,7 @@ if __name__ == "__main__":
         secret = request.values.get('secret')  # 暂且不使用secret
         data = request.get_json()
         prompt, message = list(data.get("prompt", "")), data.get("message", "")
-        response, _ = model.textChat(tokenizer, message, history=prompt)
+        response, _ = model.chat(tokenizer, message, history=prompt)
         return {"time": api_app.getISOTime(), "content": response}, 200
 
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         secret = request.values.get('secret')  # 暂且不使用secret
         data = request.get_json()
         history, message = data.get("history", []), data.get("message", "")
-        response, _ = model.textChat(tokenizer, message, history=history)
+        response, _ = model.chat(tokenizer, message, history=history)
         return {"time": api_app.getISOTime(), "content": response}, 200
 
 

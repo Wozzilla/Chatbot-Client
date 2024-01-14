@@ -15,7 +15,7 @@ class ASRBase:
     """语音识别后端基类，建议在进行语音识别后端开发时继承该类"""
 
     def __init__(self, asrType: ASREnum, model: str):
-        self.asrType = asrType  # 语音识别类型
+        self.type = asrType  # 语音识别类型
         self.model = model  # 语音识别模型
 
     @abstractmethod
@@ -37,6 +37,7 @@ class Whisper(ASRBase):
     """
 
     def __init__(self, Whisper_config: dict):
+        super().__init__(ASREnum.Whisper_Finetune, Whisper_config.get("model", "Whiper-Finetune"))
         self.host, self.secret = None, None
         self.mode = Whisper_config.get("mode", "remote")
         if self.mode == "remote":
@@ -48,7 +49,6 @@ class Whisper(ASRBase):
         else:
             # 暂未进行本地运行Whisper的开发(本地运行的话直接部署Whisper-Finetune就好了，不需要这套框架)
             raise NotImplementedError("Whisper local mode is not implemented yet!")
-        super().__init__(ASREnum.WHISPER, Whisper_config.get("model", "Whiper-Finetune"))
 
     def transcribe(self, audio: tuple[int, np.array]) -> str:
         """
@@ -84,7 +84,8 @@ class Whisper(ASRBase):
                 params={"secret": self.secret},
                 timeout=10
             )
-            return request.status_code == 200
+            if not request.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
@@ -101,11 +102,11 @@ class WhisperAPI(ASRBase):
     """
 
     def __init__(self, OpenAI_config: dict):
+        super().__init__(ASREnum.Whisper, OpenAI_config.get("asr_model", "whisper-1"))
         self.api_key = OpenAI_config.get("api_key", None)
         if not self.api_key:
             raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")
         self.host = OpenAI(api_key=self.api_key)
-        super().__init__(ASREnum.WHISPER, OpenAI_config.get("asr_model", "whisper-1"))
 
     def transcribe(self, audio: PathLike) -> str:
         """
@@ -146,7 +147,8 @@ class WhisperAPI(ASRBase):
                 },
                 timeout=10
             )
-            return response.status_code == 200
+            if not response.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
