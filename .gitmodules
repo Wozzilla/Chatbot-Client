@@ -7,3 +7,6 @@ url = https://github.com/YNU-IST-Project-Chatbot/ChatGLM3
 [submodule "modules/TTS/FastSpeech2"]
 path = modules/TTS/FastSpeech2
 url = https://github.com/YNU-IST-Project-Chatbot/FastSpeech2
+[submodule "modules/NLG/LLaMa-Factory"]
+	path = modules/NLG/LLaMa-Factory
+	url = https://github.com/hiyouga/LLaMA-Factory.git
