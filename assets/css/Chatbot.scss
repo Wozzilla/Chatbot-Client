@@ -1,0 +1,39 @@
+$title-color: #C7B48E;
+
+@font-face {
+    font-family: "Genshin Font";
+    src: url("../font/GenshinFont.ttf") format("truetype");
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: url("https://i.miji.bid/2024/01/14/9ddfec2d27cb79f40ea51b40f9d7131d.webp") !important;
+    repeat: no-repeat;
+    background-attachment: fixed;
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/background.jpg', sizingMethod='scale');
+    -ms-filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/background.jpg', sizingMethod='scale');
+    background-size: cover;
+    -moz-background-size: cover;
+    -webkit-background-size: cover;
+
+    .gradio-container {
+        display: flex;
+        flex-direction: column;
+        margin-left: 0 !important;
+
+        h1 {
+            font-family: "Genshin Font", sans-serif;
+            color: $title-color;
+        }
+
+
+        .mic-select {
+            height: 0 !important;
+            border: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
+}
+
