@@ -3,7 +3,6 @@ from json import load
 from enum import Enum
 import os
 
-
 try:
     with open('config.json') as f:
         Configs = load(f)
@@ -29,7 +28,8 @@ class TTSEnum(Enum):
     """语音合成类型枚举"""
     FastSpeech = 0
     FastSpeech_Finetune = 1  # 经过微调的FastSpeech2模型
-    OpenAI_TTS = 2  # OpenAI的TTS模型
+    Bert_VITS2_Keqing = 2  # Bert-VITS2 刻晴语音模型
+    OpenAI_TTS = 3  # OpenAI的TTS模型
 
 
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ from abc import abstractmethod
 from os import PathLike
 from urllib.parse import urljoin
 
+import numpy as np
+from scipy.io.wavfile import write as wavwrite
 import requests
 from openai import OpenAI
 
@@ -41,32 +43,73 @@ class TTSBase:
         pass
 
 
-class Bert_VITS2(TTSBase):
+class BertVITS2(TTSBase):
     """
     调用远端Bert-VITS2模型进行语音合成
 
 
     """
 
-    def __init__(self, BertVITS_config: dict):
+    def __init__(self, BertVITS2_config: dict):
         self.host, self.secret = None, None
-        self.mode = BertVITS_config.get("mode", "remote")
+        self.speaker = BertVITS2_config.get("speaker", "刻晴")
+        self.mode = BertVITS2_config.get("mode", "remote")
         if self.mode == "remote":
-            self.host = BertVITS_config.get("host", None)
-            self.secret = BertVITS_config.get("secret", None)
+            self.host = BertVITS2_config.get("host", None)
+            self.secret = BertVITS2_config.get("secret", None)
             if not self.host:
-                raise ValueError("FastSpeech host is not set! Please check your 'config.json' file.")
+                raise ValueError("Bert-VITS2 host is not set! Please check your 'config.json' file.")
             self.checkConnection()
         else:
-            # 暂未进行本地运行FastSpeech的开发(本地运行的话直接部署FastSpeech就好了，不需要这套框架)
-            raise NotImplementedError("FastSpeech local mode is not implemented yet!")
-        super().__init__(TTSEnum.FastSpeech, BertVITS_config.get("model", "FastSpeech"))
+            # 暂未进行本地运行Bert-VITS2的开发(本地运行的话直接部署Bert-VITS2就好了，不需要这套框架)
+            raise NotImplementedError("Bert-VITS2 local mode is not implemented yet!")
+        super().__init__(TTSEnum.Bert_VITS2_Keqing, BertVITS2_config.get("model", "Bert-VITS2-Keqing"))
 
     def synthesize(self, text) -> str:
-        pass
+        """
+        语音合成
+
+        该方法调用远端Bert-VITS2的模型，将文本转换为语音。
+        :param text: str 待合成的文本
+        :return: tuple[int, np.array] 语音数据，分别为采样率和以np.array形式存储的采样数据
+        """
+        try:
+            response = requests.post(
+                url=urljoin(self.host, 'synthesize'),
+                params={"secret": self.secret},
+                json={"text": text, "speaker": self.speaker},
+                timeout=int(len(text) * 0.6)
+            )
+            data = response.json()
+            sampleRate = data['sampling_rate']
+            audioData = data['raw']
+            audioData = np.array(audioData, dtype=np.int16)
+            wavwrite(os.path.join(self.savePath, "synthesize.wav"), sampleRate, audioData)
+        except requests.exceptions.Timeout:
+            raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
+        return os.path.join(self.savePath, "synthesize.wav").replace('\\', '/')
 
     def checkConnection(self):
-        pass
+        """
+        检查与远端Bert-VITS2的连接状态
+        :return: bool 是否连接成功
+        """
+        try:
+            response = requests.get(
+                url=self.host,
+                params={"secret": self.secret},
+                timeout=10
+            )
+            if not response.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
+        except requests.exceptions.Timeout:
+            raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
+        finally:
+            print("Bert-VITS2 remote mode connection check finished.")
 
 
 class FastSpeech(TTSBase):

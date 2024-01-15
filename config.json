@@ -23,5 +23,12 @@
     "model": "FastSpeech2",
     "host": "",
     "secret": ""
+  },
+  "BertVITS2": {
+    "mode": "remote",
+    "model": "Bert-VITS2-Keqing",
+    "speaker": "刻晴",
+    "host": "",
+    "secret": ""
   }
 }

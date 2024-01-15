@@ -1,4 +1,4 @@
-"""此文件以ChatGLM为例，展示了如何将一个AI模型包装为API，并允许远程调用"""
+"""此文件以FastSpeech2为例，展示了如何将一个AI模型包装为API，并允许远程调用"""
 from APIWrapper import APIWrapper
 from flask import request, send_file, abort
 import re
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     device = "cpu"
 
 
-    @api_app.addRoute('/transcribe', methods=['POST'])  # 定义一个路由，用于处理单次聊天(不带历史记录)
+    @api_app.addRoute('/transcribe', methods=['POST'])  # 定义一个路由，用于处理文字转语音任务(不带历史记录)
     def transcribe():
         """
         将文本转换为音频文件，并发送
