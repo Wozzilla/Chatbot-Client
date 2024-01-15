@@ -31,6 +31,43 @@ class TTSBase:
         """
         pass
 
+    @abstractmethod
+    def checkConnection(self):
+        """
+        检查连接状况，当无法连接远端时，应触发对应的Exception，以便于前端进行提示
+
+        具体实现详见子类
+        """
+        pass
+
+
+class Bert_VITS2(TTSBase):
+    """
+    调用远端Bert-VITS2模型进行语音合成
+
+
+    """
+
+    def __init__(self, BertVITS_config: dict):
+        self.host, self.secret = None, None
+        self.mode = BertVITS_config.get("mode", "remote")
+        if self.mode == "remote":
+            self.host = BertVITS_config.get("host", None)
+            self.secret = BertVITS_config.get("secret", None)
+            if not self.host:
+                raise ValueError("FastSpeech host is not set! Please check your 'config.json' file.")
+            self.checkConnection()
+        else:
+            # 暂未进行本地运行FastSpeech的开发(本地运行的话直接部署FastSpeech就好了，不需要这套框架)
+            raise NotImplementedError("FastSpeech local mode is not implemented yet!")
+        super().__init__(TTSEnum.FastSpeech, BertVITS_config.get("model", "FastSpeech"))
+
+    def synthesize(self, text) -> str:
+        pass
+
+    def checkConnection(self):
+        pass
+
 
 class FastSpeech(TTSBase):
     """
