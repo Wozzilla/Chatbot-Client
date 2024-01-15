@@ -9,13 +9,8 @@ body {
     margin: 0;
     padding: 0;
     background: url("https://i.miji.bid/2024/01/14/9ddfec2d27cb79f40ea51b40f9d7131d.webp") !important;
-    repeat: no-repeat;
-    background-attachment: fixed;
-    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/background.jpg', sizingMethod='scale');
-    -ms-filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/background.jpg', sizingMethod='scale');
-    background-size: cover;
-    -moz-background-size: cover;
-    -webkit-background-size: cover;
+    background-repeat: no-repeat;
+    background-size: cover !important;
 
     .gradio-container {
         display: flex;
@@ -27,6 +22,9 @@ body {
             color: $title-color;
         }
 
+        .chatbot {
+            height: auto !important;
+        }
 
         .mic-select {
             height: 0 !important;
