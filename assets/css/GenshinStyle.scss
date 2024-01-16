@@ -1,0 +1,46 @@
+$title-color: #C7B48E;
+
+
+body {
+    margin: 0;
+    padding: 0;
+    background: url("https://i.miji.bid/2024/01/14/9ddfec2d27cb79f40ea51b40f9d7131d.webp") !important;
+    background-repeat: no-repeat;
+    background-size: cover !important;
+
+    .gradio-container {
+        display: flex;
+        flex-direction: column;
+        margin-left: 0 !important;
+
+        h1, button {
+            font-family: "Douyin Sans", sans-serif !important;
+            color: $title-color;
+        }
+
+        #chatbot {
+
+            .message {
+                width: auto;
+            }
+
+            .avatar-container {
+                width: 70px !important;
+                height: 70px !important;
+
+                .avatar-image {
+                    width: 70px !important;
+                    height: 70px !important;
+                }
+            }
+        }
+
+        .mic-select {
+            height: 0 !important;
+            border: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
+}
+

@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: url("https://i.miji.bid/2024/01/14/9ddfec2d27cb79f40ea51b40f9d7131d.webp") !important;
+  background-repeat: no-repeat;
+  background-size: cover !important;
+}
+body .gradio-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0 !important;
+}
+body .gradio-container h1, body .gradio-container button {
+  font-family: "Douyin Sans", sans-serif !important;
+  color: #C7B48E;
+}
+body .gradio-container #chatbot .message {
+  width: auto;
+}
+body .gradio-container #chatbot .avatar-container {
+  width: 70px !important;
+  height: 70px !important;
+}
+body .gradio-container #chatbot .avatar-container .avatar-image {
+  width: 70px !important;
+  height: 70px !important;
+}
+body .gradio-container .mic-select {
+  height: 0 !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/*# sourceMappingURL=GenshinStyle.css.map */
