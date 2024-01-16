@@ -51,6 +51,7 @@ class BertVITS2(TTSBase):
     """
 
     def __init__(self, BertVITS2_config: dict):
+        super().__init__(TTSEnum.Bert_VITS2, BertVITS2_config.get("model", "Bert-VITS2-Keqing"))
         self.host, self.secret = None, None
         self.speaker = BertVITS2_config.get("speaker", "刻晴")
         self.mode = BertVITS2_config.get("mode", "remote")
@@ -63,7 +64,6 @@ class BertVITS2(TTSBase):
         else:
             # 暂未进行本地运行Bert-VITS2的开发(本地运行的话直接部署Bert-VITS2就好了，不需要这套框架)
             raise NotImplementedError("Bert-VITS2 local mode is not implemented yet!")
-        super().__init__(TTSEnum.Bert_VITS2_Keqing, BertVITS2_config.get("model", "Bert-VITS2-Keqing"))
 
     def synthesize(self, text) -> str:
         """
