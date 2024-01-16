@@ -5,31 +5,74 @@ body {
   background-repeat: no-repeat;
   background-size: cover !important;
 }
-body .gradio-container {
+body div.gradio-container {
   display: flex;
   flex-direction: column;
-  margin-left: 0 !important;
 }
-body .gradio-container h1, body .gradio-container button {
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper {
+  background-color: rgba(0, 0, 0, 0);
+}
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper label.svelte-1b6s6s {
   font-family: "Douyin Sans", sans-serif !important;
-  color: #C7B48E;
 }
-body .gradio-container #chatbot .message {
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper label.svelte-1b6s6s span.svelte-1b6s6s svg {
+  display: none;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper div.bubble-wrap div.message.user {
+  background-color: #d7d1c7;
+  border: 0 !important;
+  padding: 15px;
+  color: #2f2927 !important;
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper div.bubble-wrap div.message.bot {
+  background-color: #3b4456 !important;
+  border: 0 !important;
+  padding: 15px;
+  color: #e7effa !important;
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper .message {
   width: auto;
 }
-body .gradio-container #chatbot .avatar-container {
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper .avatar-container {
   width: 70px !important;
   height: 70px !important;
 }
-body .gradio-container #chatbot .avatar-container .avatar-image {
+body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper .avatar-container .avatar-image {
   width: 70px !important;
   height: 70px !important;
 }
-body .gradio-container .mic-select {
-  height: 0 !important;
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#textInput label {
   border: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#textInput label textarea {
+  border: 0 !important;
+  height: 32px !important;
+  color: #e7effa !important;
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#audioInput label {
+  display: none !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#audioInput div.svelte-19sk1im {
+  display: none !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#audioInput div.component-wrapper div.controls div.wrapper button {
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#audioInput div.component-wrapper select.mic-select {
+  display: none !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel button#submitButton {
+  font-family: "Douyin Sans", sans-serif !important;
+  background-color: #d7d1c7 !important;
+  color: #2f2927 !important;
+}
+body div.gradio-container div#baseContainer div#chatPanel div#inputPanel button#cleanButton {
+  font-family: "Douyin Sans", sans-serif !important;
+  background-color: #d7d1c7 !important;
+  color: #2f2927 !important;
 }
 
 /*# sourceMappingURL=GenshinStyle.css.map */

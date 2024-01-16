@@ -51,7 +51,7 @@ class BertVITS2(TTSBase):
     """
 
     def __init__(self, BertVITS2_config: dict):
-        super().__init__(TTSEnum.Bert_VITS2, BertVITS2_config.get("model", "Bert-VITS2-Keqing"))
+        super().__init__(TTSEnum.Bert_VITS, BertVITS2_config.get("model", "Bert-VITS2-Keqing"))
         self.host, self.secret = None, None
         self.speaker = BertVITS2_config.get("speaker", "刻晴")
         self.mode = BertVITS2_config.get("mode", "remote")
@@ -120,7 +120,7 @@ class FastSpeech(TTSBase):
     """
 
     def __init__(self, FastSpeech_config: dict):
-        super().__init__(TTSEnum.FastSpeech, FastSpeech_config.get("model", "FastSpeech"))
+        super().__init__(TTSEnum.FastSpeech_Finetune, FastSpeech_config.get("model", "FastSpeech"))
         self.host, self.secret = None, None
         self.mode = FastSpeech_config.get("mode", "remote")
         if self.mode == "remote":

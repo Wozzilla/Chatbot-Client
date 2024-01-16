@@ -1,5 +1,9 @@
-$title-color: #C7B48E;
-
+$color_name: #C7B48E;
+$color_botInfoBackground: #3b4456;
+$color_botInfoText: #e7effa;
+$color_userInfoBackground: #d7d1c7;
+$color_userInfoText: #2f2927;
+$font-family: "Douyin Sans", sans-serif;
 
 body {
     margin: 0;
@@ -8,38 +12,113 @@ body {
     background-repeat: no-repeat;
     background-size: cover !important;
 
-    .gradio-container {
+    div.gradio-container {
         display: flex;
         flex-direction: column;
-        margin-left: 0 !important;
 
-        h1, button {
-            font-family: "Douyin Sans", sans-serif !important;
-            color: $title-color;
-        }
+        div#baseContainer {
+            div#chatPanel {
+                div#chatbot {
 
-        #chatbot {
+                    div.wrapper {
+                        background-color: rgba(0, 0, 0, 0);
 
-            .message {
-                width: auto;
-            }
+                        label.svelte-1b6s6s {
+                            font-family: $font-family !important;
 
-            .avatar-container {
-                width: 70px !important;
-                height: 70px !important;
+                            span.svelte-1b6s6s {
+                                svg {
+                                    display: none;
+                                }
+                            }
+                        }
 
-                .avatar-image {
-                    width: 70px !important;
-                    height: 70px !important;
+                        div.bubble-wrap {
+                            div.message.user {
+                                background-color: $color_userInfoBackground;
+                                border: 0 !important;
+                                padding: 15px;
+                                color: $color_userInfoText !important;
+                                font-family: $font-family !important;
+                            }
+
+                            div.message.bot {
+                                background-color: $color_botInfoBackground !important;
+                                border: 0 !important;
+                                padding: 15px;
+                                color: $color_botInfoText !important;
+                                font-family: $font-family !important;
+                            }
+                        }
+
+                        .message {
+                            width: auto;
+                        }
+
+                        .avatar-container {
+                            width: 70px !important;
+                            height: 70px !important;
+
+                            .avatar-image {
+                                width: 70px !important;
+                                height: 70px !important;
+                            }
+                        }
+                    }
+                }
+
+                div#inputPanel {
+                    div#textInput {
+                        label {
+                            border: 0 !important;
+
+                            textarea {
+                                border: 0 !important;
+                                height: 32px !important;
+                                color: $color_botInfoText !important;
+                                font-family: $font-family !important;
+                            }
+                        }
+                    }
+
+                    div#audioInput {
+
+                        label {
+                            display: none !important;
+                        }
+
+                        div.svelte-19sk1im {
+                            display: none !important;
+                        }
+
+                        div.component-wrapper {
+                            div.controls {
+                                div.wrapper {
+                                    button {
+                                        font-family: $font-family !important;
+                                    }
+                                }
+                            }
+
+                            select.mic-select {
+                                display: none !important;
+                            }
+                        }
+                    }
+
+                    button#submitButton {
+                        font-family: $font-family !important;
+                        background-color: $color_userInfoBackground !important;
+                        color: $color_userInfoText !important;
+                    }
+
+                    button#cleanButton {
+                        font-family: $font-family !important;
+                        background-color: $color_userInfoBackground !important;
+                        color: $color_userInfoText !important;
+                    }
                 }
             }
-        }
-
-        .mic-select {
-            height: 0 !important;
-            border: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
         }
     }
 }

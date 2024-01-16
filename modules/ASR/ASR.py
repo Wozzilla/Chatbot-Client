@@ -102,7 +102,7 @@ class WhisperAPI(ASRBase):
     """
 
     def __init__(self, OpenAI_config: dict):
-        super().__init__(ASREnum.Whisper, OpenAI_config.get("asr_model", "whisper-1"))
+        super().__init__(ASREnum.WhisperAPI, OpenAI_config.get("asr_model", "whisper-1"))
         self.api_key = OpenAI_config.get("api_key", None)
         if not self.api_key:
             raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")

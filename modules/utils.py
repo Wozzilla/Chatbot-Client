@@ -26,15 +26,14 @@ class NLGEnum(Enum):
 
 class ASREnum(Enum):
     """语音识别类型枚举"""
-    Whisper = 0  # Whisper API
+    WhisperAPI = 0  # Whisper API
     Whisper_Finetune = 1  # 经过微调的Whisper模型
 
 
 class TTSEnum(Enum):
     """语音合成类型枚举"""
-    FastSpeech = 0
-    FastSpeech_Finetune = 1  # 经过微调的FastSpeech2模型
-    Bert_VITS2 = 2  # Bert-VITS2 刻晴语音模型
+    FastSpeech_Finetune = 0  # 经过微调的FastSpeech2模型
+    Bert_VITS = 2  # Bert-VITS2 刻晴语音模型
     OpenAI_TTS = 3  # OpenAI的TTS模型
 
 
