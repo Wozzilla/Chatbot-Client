@@ -13,7 +13,7 @@ body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrappe
   background-color: rgba(0, 0, 0, 0);
 }
 body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper label.svelte-1b6s6s {
-  font-family: "Douyin Sans", sans-serif !important;
+  display: none;
 }
 body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper label.svelte-1b6s6s span.svelte-1b6s6s svg {
   display: none;
@@ -53,9 +53,6 @@ body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#tex
   font-family: "Douyin Sans", sans-serif !important;
 }
 body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#audioInput label {
-  display: none !important;
-}
-body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#audioInput div.svelte-19sk1im {
   display: none !important;
 }
 body div.gradio-container div#baseContainer div#chatPanel div#inputPanel div#audioInput div.component-wrapper div.controls div.wrapper button {

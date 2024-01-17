@@ -4,14 +4,14 @@ import gradio as gr
 from modules.NLG.NLG import *
 from modules.ASR.ASR import *
 from modules.TTS.TTS import *
-from modules.utils import Configs, ASREnum, NLGEnum, TTSEnum, getAvatars
+from modules import utils
 
-nlgService = ChatGPT(Configs["OpenAI"])
-asrService = WhisperAPI(Configs["OpenAI"])
-ttsService = OpenAITTS(Configs["OpenAI"])
+nlgService = ChatGPT(utils.Configs["OpenAI"])
+asrService = WhisperAPI(utils.Configs["OpenAI"])
+ttsService = OpenAITTS(utils.Configs["OpenAI"])
 
 with gr.Blocks(theme=gr.themes.Soft(),
-               css="./assets/css/GenshinStyle.css", js="./assets/js/GenshinStyle.js", title="云·原神",
+               css="./assets/css/GenshinStyle.css", js="./assets/js/GenshinStyle.js", title="Chatbot",
                ) as demo:
     with gr.Row(elem_id="baseContainer"):
         with gr.Column(min_width=280, elem_id="sideBar"):
@@ -22,7 +22,7 @@ with gr.Blocks(theme=gr.themes.Soft(),
             ttsSwitch = gr.Dropdown([i.name for i in TTSEnum], value=ttsService.type.name, interactive=True,
                                     label="选择TTS模型", elem_id="ttsSwitch")
         with gr.Column(scale=5, elem_id="chatPanel"):
-            botComponent = gr.Chatbot(label=nlgService.type.name, avatar_images=getAvatars(), elem_id="chatbot")
+            botComponent = gr.Chatbot(label=nlgService.type.name, avatar_images=utils.getAvatars(), elem_id="chatbot")
             with gr.Row(elem_id="inputPanel"):
                 textInput = gr.Textbox(placeholder="点击输入", show_label=False, scale=4, elem_id="textInput")
                 audioInput = gr.Audio(sources=["microphone"], type="filepath", show_label=False, scale=4,
@@ -77,17 +77,16 @@ with gr.Blocks(theme=gr.themes.Soft(),
             :param selectService: str NLG模型名称
             :return: str NLG模型名称
             """
-            global nlgService
+            global nlgService, nlgSwitch
             currentService = nlgService.type.name  # 当前的NLG模型
             if selectService == currentService:
-                gr.Warning("模型切换失败，请检查网络连接或模型配置")
                 return currentService
             else:  # 尝试切换模型
                 try:
                     if selectService == NLGEnum.ChatGPT.name:
-                        tempService = ChatGPT(Configs["OpenAI"])
+                        tempService = ChatGPT(utils.Configs["OpenAI"])
                     elif selectService == NLGEnum.ChatGLM.name:
-                        tempService = ChatGLM(Configs["ChatGLM"])
+                        tempService = ChatGLM(utils.Configs["ChatGLM"])
                     else:  # 未知的模型选择，不执行切换
                         gr.Warning(f"未知的NLG模型，将不进行切换，当前：{currentService}")
                         return currentService
@@ -99,24 +98,22 @@ with gr.Blocks(theme=gr.themes.Soft(),
                     return currentService
 
 
-        def switchASR(selectService: str):  # TODO: 待测试
+        def switchASR(selectService: str):
             """
             切换ASR模型
             :param selectService: str ASR模型名称
             :return: str ASR模型名称
             """
-            global asrService
+            global asrService, audioInput
             currentService = asrService.type.name  # 当前的ASR模型
             if selectService == currentService:
-                gr.Warning("模型切换失败，请检查网络连接或模型配置")
                 return currentService
             else:  # 尝试切换模型
                 try:
-                    if selectService == ASREnum.Whisper.name:
-                        tempService = WhisperAPI(Configs["OpenAI"])
+                    if selectService == ASREnum.WhisperAPI.name:
+                        tempService = WhisperAPI(utils.Configs["OpenAI"])
                     elif selectService == ASREnum.Whisper_Finetune.name:
-                        tempService = Whisper(
-                            Configs["Whisper"])  # TODO: 注意，这里的Whisper模型采用的gr.Audio接口为tuple[int, np.array]，应修改为PathLike
+                        tempService = Whisper(utils.Configs["Whisper"])
                     else:  # 未知的模型选择，不执行切换
                         gr.Warning(f"未知的ASR模型，将不进行切换，当前：{currentService}")
                         return currentService
@@ -137,14 +134,13 @@ with gr.Blocks(theme=gr.themes.Soft(),
             global ttsService
             currentService = ttsService.type.name  # 当前的TTS模型
             if selectService == currentService:
-                gr.Warning("模型切换失败，请检查网络连接或模型配置")
                 return currentService
             else:  # 尝试切换模型
                 try:
                     if selectService == TTSEnum.OpenAI_TTS.name:
-                        tempService = OpenAITTS(Configs["OpenAI"])
-                    elif selectService == TTSEnum.Bert_VITS2.name:
-                        tempService = BertVITS2(Configs["BertVITS2"])
+                        tempService = OpenAITTS(utils.Configs["OpenAI"])
+                    elif selectService == TTSEnum.Bert_VITS.name:
+                        tempService = BertVITS2(utils.Configs["BertVITS2"])
                     else:  # 未知的模型选择，不执行切换
                         gr.Warning(f"未知的TTS模型，将不进行切换，当前：{currentService}")
                         return currentService

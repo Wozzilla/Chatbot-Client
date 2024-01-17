@@ -4,8 +4,7 @@ from abc import abstractmethod
 from os import PathLike
 from typing import Union
 from urllib.parse import urljoin
-
-import numpy as np
+from scipy.io.wavfile import read as wavread
 import requests
 from openai import OpenAI
 from modules.utils import ASREnum
@@ -27,6 +26,16 @@ class ASRBase:
         :param audio: 语音数据，可能为tuple[int, np.array]或PathLike，具体类型详见子类
         """
         pass
+
+    @staticmethod
+    def getAllASRModels():
+        """
+        返回当前支持的全部语音识别模型
+        :return dict[ASRBase: list[str]] 语音识别模型字典，key为类，value为该类支持的全部模型列表
+        """
+        return {WhisperAPI: ['whisper-1'],
+                Whisper: ['whisper-tiny', 'whisper-base', 'whisper-small', 'whisper-tiny-finetune',
+                          'whisper-base-finetune']}
 
 
 class Whisper(ASRBase):
@@ -50,21 +59,21 @@ class Whisper(ASRBase):
             # 暂未进行本地运行Whisper的开发(本地运行的话直接部署Whisper-Finetune就好了，不需要这套框架)
             raise NotImplementedError("Whisper local mode is not implemented yet!")
 
-    def transcribe(self, audio: tuple[int, np.array]) -> str:
+    def transcribe(self, audio: PathLike) -> str:
         """
         语音识别
 
         该方法调用远端Whisper-Finetune的模型，将语音文件转换为文本。
-        :param audio: tuple[int, np.array] 语音数据，分别为采样率和以np.array形式存储的采样数据
+        :param audio: PathLink 语音文件路径
         :return: str 识别结果
         """
-        sampleRate, audio = audio
-        audio = audio.tolist()
+        sampleRate, raw = wavread(audio)
+        raw = raw.tolist()
         try:
             response = requests.post(
                 url=urljoin(self.host, 'transcribe'),
                 params={"secret": self.secret},
-                json={"sampling_rate": sampleRate, "raw": audio},
+                json={"sampling_rate": sampleRate, "raw": raw},
                 timeout=20
             )
         except requests.exceptions.Timeout:

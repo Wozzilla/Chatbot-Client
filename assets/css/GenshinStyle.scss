@@ -24,7 +24,7 @@ body {
                         background-color: rgba(0, 0, 0, 0);
 
                         label.svelte-1b6s6s {
-                            font-family: $font-family !important;
+                            display: none;
 
                             span.svelte-1b6s6s {
                                 svg {
@@ -84,10 +84,6 @@ body {
                     div#audioInput {
 
                         label {
-                            display: none !important;
-                        }
-
-                        div.svelte-19sk1im {
                             display: none !important;
                         }
 

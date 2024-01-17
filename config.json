@@ -14,7 +14,7 @@
   },
   "Whisper": {
     "mode": "remote",
-    "model": "Whiper-Finetune",
+    "model": "Whiper-Base-Finetune",
     "host": "",
     "secret": ""
   },

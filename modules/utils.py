@@ -15,7 +15,10 @@ def getAvatars():
     """
     返回用户头像和bot头像的url链接
     """
-    return "https://patchwiki.biligame.com/images/ys/a/a7/e9o4gu6ztf7zytnvvkeoerbevkjfwjr.png","https://patchwiki.biligame.com/images/ys/6/6a/goj6bb8yj190midok60n2fbkk872090.png"
+    return (
+        "https://patchwiki.biligame.com/images/ys/a/a7/e9o4gu6ztf7zytnvvkeoerbevkjfwjr.png",
+        "https://patchwiki.biligame.com/images/ys/6/6a/goj6bb8yj190midok60n2fbkk872090.png"
+    )
 
 
 class NLGEnum(Enum):
