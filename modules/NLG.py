@@ -63,7 +63,7 @@ class ChatGLM(NLGBase):
     """
 
     def __init__(self, ChatGLM_config: dict, prompt: str = None):
-        super().__init__(NLGEnum.ChatGLM, ChatGLM_config.get("model", "ChatGLM3"), prompt)
+        super().__init__(NLGEnum.ChatGLM, ChatGLM_config.get("model", "NLG/ChatGLM3"), prompt)
         self.host, self.secret = None, None
         self.mode = ChatGLM_config.get("mode", "remote")
         if self.mode == "remote":
