@@ -9,6 +9,24 @@ body div.gradio-container {
   display: flex;
   flex-direction: column;
 }
+body div.gradio-container div#baseContainer div#sidebar div#asrSwitch span {
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#sidebar div#asrSwitch input {
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#sidebar div#nlgSwitch span {
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#sidebar div#nlgSwitch input {
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#sidebar div#ttsSwitch span {
+  font-family: "Douyin Sans", sans-serif !important;
+}
+body div.gradio-container div#baseContainer div#sidebar div#ttsSwitch input {
+  font-family: "Douyin Sans", sans-serif !important;
+}
 body div.gradio-container div#baseContainer div#chatPanel div#chatbot div.wrapper {
   background-color: rgba(0, 0, 0, 0);
 }

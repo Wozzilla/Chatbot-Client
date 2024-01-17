@@ -17,6 +17,38 @@ body {
         flex-direction: column;
 
         div#baseContainer {
+            div#sidebar {
+                div#asrSwitch {
+                    span {
+                        font-family: $font-family !important;
+                    }
+
+                    input {
+                        font-family: $font-family !important;
+                    }
+                }
+
+                div#nlgSwitch {
+                    span {
+                        font-family: $font-family !important;
+                    }
+
+                    input {
+                        font-family: $font-family !important;
+                    }
+                }
+
+                div#ttsSwitch {
+                    span {
+                        font-family: $font-family !important;
+                    }
+
+                    input {
+                        font-family: $font-family !important;
+                    }
+                }
+            }
+
             div#chatPanel {
                 div#chatbot {
 

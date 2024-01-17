@@ -1,17 +1,17 @@
 """本文件为整个项目的主文件，并使用gradio搭建界面"""
 import subprocess
 import gradio as gr
-from modules.NLG.NLG import *
-from modules.ASR.ASR import *
-from modules.TTS.TTS import *
+from modules.NLG import *
+from modules.ASR import *
+from modules.TTS import *
 from modules import utils
 
-nlgService = ChatGPT(utils.Configs["OpenAI"])
-asrService = WhisperAPI(utils.Configs["OpenAI"])
-ttsService = OpenAITTS(utils.Configs["OpenAI"])
+nlgService = ChatGLM(utils.Configs["ChatGLM"])
+asrService = Whisper(utils.Configs["Whisper"])
+ttsService = BertVITS2(utils.Configs["BertVITS2"])
 
-with gr.Blocks(theme=gr.themes.Soft(),
-               css="./assets/css/GenshinStyle.css", js="./assets/js/GenshinStyle.js", title="Chatbot",
+with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3-6B",
+               css="./assets/css/GenshinStyle.css", js="./assets/js/GenshinStyle.js"
                ) as demo:
     with gr.Row(elem_id="baseContainer"):
         with gr.Column(min_width=280, elem_id="sideBar"):
@@ -125,7 +125,7 @@ with gr.Blocks(theme=gr.themes.Soft(),
                     return currentService
 
 
-        def switchTTS(selectService: str):  # TODO: 待测试
+        def switchTTS(selectService: str):
             """
             切换TTS模型
             :param selectService: str TTS模型名称
