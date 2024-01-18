@@ -20,15 +20,15 @@ class APIWrapper:
             [
                 "这是一个基于Flask开发的API包装器，您可以利用它轻松地将您的Python代码包装为API，以服务器的形式运行（当然，前提是您的IP能否被访问）。",
                 "这个类最初用于“YNU-IST Project Chatbot”项目，以解决单台计算机无法部署全部服务的需求。",
-                "您可以在<https://github.com/YNU-IST-Project-Chatbot/Chatbot/wiki/APIWrapper>中查看详细用法。",
-                "如果您喜欢，希望您能为我们的项目<https://github.com/YNU-IST-Project-Chatbot/Chatbot>点一个star！"
+                "您可以在<https://github.com/Wozzilla/Chatbot-Client/wiki/APIWrapper>中查看详细用法。",
+                "如果您喜欢，希望您能为我们的项目<https://github.com/Wozzilla/Chatbot-Client>点一个star！"
             ],
             [
                 "This is an API wrapper developed based on Flask.",
                 "With it, you can easily wrap your Python code as an API and run it as a server (provided, of course, that your IP can be accessed).",
                 "This class was initially used in the 'YNU-IST Project Chatbot' project to address the need for deploying all services on a single computer.",
-                "You can find detailed usage instructions at <https://github.com/YNU-IST-Project-Chatbot/Chatbot/wiki/APIWrapper>.",
-                "If you find it helpful, we would appreciate it if you could give a star to our project at <https://github.com/YNU-IST-Project-Chatbot/Chatbot>."
+                "You can find detailed usage instructions at <https://github.com/Wozzilla/Chatbot-Client/wiki/APIWrapper>.",
+                "If you find it helpful, we would appreciate it if you could give a star to our project at <https://github.com/Wozzilla/Chatbot-Client>."
             ]
         ],
         "author": "@Steven-Zhl",
