@@ -6,9 +6,9 @@ from modules.ASR import *
 from modules.TTS import *
 from modules import utils
 
-nlgService = ChatGLM(utils.Configs["ChatGLM"])
-asrService = Whisper(utils.Configs["Whisper"])
-ttsService = BertVITS2(utils.Configs["BertVITS2"])
+nlgService = ERNIEBot(utils.Configs["Baidu"]["nlg"])
+asrService = BaiduASR(utils.Configs["Baidu"]["asr"])
+ttsService = BaiduTTS(utils.Configs["Baidu"]["tts"])
 
 with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3-6B",
                css="./assets/css/GenshinStyle.css", js="./assets/js/GenshinStyle.js"
@@ -67,7 +67,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3
             botMessage = nlgService.continuedQuery(message, chatHistory)
             chatHistory.append((message, botMessage))
             synthAudioPath = ttsService.synthesize(botMessage)
-            subprocess.Popen(["ffplay", "-noborder", "-nodisp", "-autoexit", "-i", synthAudioPath])
+            subprocess.Popen(["ffplay", "-noborder", "-nodisp", "-autoexit", "-i", synthAudioPath])  # 调用ffplay播放音频
             return "", chatHistory
 
 
@@ -87,6 +87,8 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3
                         tempService = ChatGPT(utils.Configs["OpenAI"])
                     elif selectService == NLGEnum.ChatGLM.name:
                         tempService = ChatGLM(utils.Configs["ChatGLM"])
+                    elif selectService == NLGEnum.ERNIE_Bot.name:
+                        tempService = ERNIEBot(utils.Configs["Baidu"]["nlg"])
                     else:  # 未知的模型选择，不执行切换
                         gr.Warning(f"未知的NLG模型，将不进行切换，当前：{currentService}")
                         return currentService
@@ -114,6 +116,8 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3
                         tempService = WhisperAPI(utils.Configs["OpenAI"])
                     elif selectService == ASREnum.Whisper_Finetune.name:
                         tempService = Whisper(utils.Configs["Whisper"])
+                    elif selectService == ASREnum.Baidu_ASR.name:
+                        tempService = BaiduASR(utils.Configs["Baidu"]["asr"])
                     else:  # 未知的模型选择，不执行切换
                         gr.Warning(f"未知的ASR模型，将不进行切换，当前：{currentService}")
                         return currentService
@@ -141,6 +145,8 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3
                         tempService = OpenAITTS(utils.Configs["OpenAI"])
                     elif selectService == TTSEnum.Bert_VITS.name:
                         tempService = BertVITS2(utils.Configs["BertVITS2"])
+                    elif selectService == TTSEnum.Baidu_TTS.name:
+                        tempService = BaiduTTS(utils.Configs["Baidu"]["tts"])
                     else:  # 未知的模型选择，不执行切换
                         gr.Warning(f"未知的TTS模型，将不进行切换，当前：{currentService}")
                         return currentService

@@ -2,22 +2,22 @@
 import os
 from abc import abstractmethod
 from os import PathLike
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 
 import numpy as np
-from scipy.io.wavfile import write as wavwrite
 import requests
-from openai import OpenAI
+from scipy.io.wavfile import write as wavwrite
 
-from modules.utils import TTSEnum
+from modules.utils import TTSEnum, Configs, getMacAddress
 
 
 class TTSBase:
     """语音合成的后端类，所有语音合成后端都应该继承自该类"""
 
-    def __init__(self, ttsType: TTSEnum, model: str):
+    def __init__(self, ttsType: TTSEnum, model: str, voice: str):
         self.type = ttsType
         self.model = model
+        self.voice = voice
         self.savePath = os.path.join(os.getcwd(), 'download').replace('\\', '/')  # 默认文件下载路径
         if not os.path.exists(self.savePath):
             os.mkdir(self.savePath)
@@ -47,13 +47,14 @@ class BertVITS2(TTSBase):
     """
     调用远端Bert-VITS2模型进行语音合成
 
-
+    目标项目来自：https://github.com/fishaudio/Bert-VITS2
     """
 
     def __init__(self, BertVITS2_config: dict):
-        super().__init__(TTSEnum.Bert_VITS, BertVITS2_config.get("model", "Bert-VITS2-Keqing"))
+        super().__init__(TTSEnum.Bert_VITS, BertVITS2_config.get("model", "Bert-VITS2-Keqing"),
+                         BertVITS2_config.get("voice", "刻晴"))
         self.host, self.secret = None, None
-        self.speaker = BertVITS2_config.get("speaker", "刻晴")
+        self.voice = BertVITS2_config.get("voice", "刻晴")
         self.mode = BertVITS2_config.get("mode", "remote")
         if self.mode == "remote":
             self.host = BertVITS2_config.get("host", None)
@@ -77,7 +78,7 @@ class BertVITS2(TTSBase):
             response = requests.post(
                 url=urljoin(self.host, 'synthesize'),
                 params={"secret": self.secret},
-                json={"text": text, "speaker": self.speaker},
+                json={"text": text, "speaker": self.voice},
                 timeout=int(len(text) * 0.6)
             )
             data = response.json()
@@ -120,7 +121,7 @@ class FastSpeech(TTSBase):
     """
 
     def __init__(self, FastSpeech_config: dict):
-        super().__init__(TTSEnum.FastSpeech_Finetune, FastSpeech_config.get("model", "FastSpeech"))
+        super().__init__(TTSEnum.FastSpeech_Finetune, FastSpeech_config.get("model", "FastSpeech"), "default")
         self.host, self.secret = None, None
         self.mode = FastSpeech_config.get("mode", "remote")
         if self.mode == "remote":
@@ -186,11 +187,13 @@ class OpenAITTS(TTSBase):
     """
 
     def __init__(self, OpenAI_config: dict):
-        super().__init__(TTSEnum.OpenAI_TTS, OpenAI_config.get("tts_model", "tts-1"))
+        from openai import OpenAI
+        super().__init__(TTSEnum.OpenAI_TTS, OpenAI_config.get("tts_model", "tts-1"),
+                         OpenAI_config.get("tts_voice", "nova"))
         self.api_key = OpenAI_config.get("api_key", None)
         if not self.api_key:
             raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")
-        self.voice = OpenAI_config.get("voice", "nova")
+        self.voice = OpenAI_config.get("tts_voice", "nova")
         self.host = OpenAI(api_key=self.api_key)
 
     def synthesize(self, text) -> str:
@@ -239,6 +242,82 @@ class OpenAITTS(TTSBase):
             raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         finally:
             print("OpenAI connection check finished.")
+
+
+class BaiduTTS(TTSBase):
+    """
+    调用百度的TTS模型进行语音合成
+
+    API文档参考：https://ai.baidu.com/ai-doc/SPEECH/mlbxh7xie
+    """
+
+    voice_dict = {
+        "度小美": 0, "度小宇": 1, "度逍遥（基础）": 3, "度丫丫": 4, "度小娇": 5, "度米朵": 103, "度博文": 106,
+        "度小童": 110, "度小萌": 111, "度逍遥（精品）": 5003, "度小鹿": 5118,
+    }  # 详见：https://ai.baidu.com/ai-doc/SPEECH/mlbxh7xie “请求方式和参数”中“per”参数一栏
+
+    def __init__(self, Baidu_config: dict):
+        super().__init__(TTSEnum.Baidu_TTS, Baidu_config.get("tts_model", "Baidu-TTS"),
+                         Baidu_config.get("tts_voice", "度小美"))
+        self.api_key = Baidu_config.get("api_key", None)
+        self.secret_key = Baidu_config.get("secret_key", None)
+        self.access_token = Baidu_config.get("access_token", None)
+        if not self.api_key or not self.secret_key:
+            raise ValueError("Baidu TTS api_key or secret_key is not set! Please check your 'config.json' file.")
+        self.host = "https://tsn.baidu.com/text2audio"
+        if not self.access_token:
+            self.OAuth()
+
+    def OAuth(self) -> str:
+        """
+        执行百度OAuth2.0认证，获取access_token并写入Configs和self.access_token，若已有则覆盖
+        :return: str access_token
+        """
+        response = requests.post(
+            url="https://aip.baidubce.com/oauth/2.0/token",
+            headers={'Content-Type': 'application/json', 'Accept': 'application/json'},
+            params={
+                "client_id": self.api_key,
+                "client_secret": self.secret_key,
+                "grant_type": "client_credentials"
+            },
+            timeout=10
+        )
+        access_token = response.json().get("access_token")
+        Configs["Baidu"]["tts"]["access_token"] = access_token
+        self.access_token = access_token
+        return access_token
+
+    def synthesize(self, text: str) -> str:
+        """
+        语音合成
+
+        该方法调用百度的语音合成API，将文本转换为语音。
+        :param text: str 待合成的文本
+        :return: str 合成
+        """
+        params = {'tok': self.access_token, 'tex': text, 'cuid': getMacAddress(),
+                  'lan': 'zh', 'ctp': 1, 'per': self.voice_dict[self.voice]}  # 相关参数
+        try:
+            response = requests.post(
+                url="https://tsn.baidu.com/text2audio",
+                headers={'Content-Type': 'application/x-www-form-urlencoded', 'Accept': '*/*'},
+                data=urlencode(params).encode()
+            )
+            if not response.status_code == 200:
+                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
+            if 'content-type' not in response.headers.keys() or response.headers['content-type'].find('audio/') < 0:
+                raise ValueError("TTS API Error: " + response.text)
+        except requests.exceptions.Timeout:
+            raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
+        with open(os.path.join(self.savePath, "synthesize.mp3"), "wb") as file:
+            file.write(response.content)
+        return os.path.join(self.savePath, "synthesize.mp3").replace('\\', '/')
+
+    def checkConnection(self):  # TODO: 设计检查连接的方法
+        pass
 
 
 if __name__ == '__main__':

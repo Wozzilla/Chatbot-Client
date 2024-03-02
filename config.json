@@ -6,6 +6,27 @@
     "tts_model": "tts-1",
     "tts_voice": "nova"
   },
+  "Aliyun": {},
+  "Baidu": {
+    "nlg": {
+      "api_key": "",
+      "secret_key": "",
+      "access_token": "",
+      "nlg_model": "ERNIE-Bot-8K"
+    },
+    "asr": {
+      "app_id": "",
+      "api_key": "",
+      "secret_key": "",
+      "asr_model": "baidu-1"
+    },
+    "tts": {
+      "api_key": "",
+      "secret_key": "",
+      "access_token": "",
+      "tts_voice": "度小美"
+    }
+  },
   "ChatGLM": {
     "mode": "remote",
     "model": "ChatGLM3",
@@ -27,7 +48,7 @@
   "BertVITS2": {
     "mode": "remote",
     "model": "Bert-VITS2-Keqing",
-    "speaker": "刻晴",
+    "voice": "刻晴",
     "host": "",
     "secret": ""
   }

@@ -4,9 +4,10 @@ from abc import abstractmethod
 from os import PathLike
 from typing import Union
 from urllib.parse import urljoin
-from scipy.io.wavfile import read as wavread
+
 import requests
-from openai import OpenAI
+from scipy.io.wavfile import read as wavread
+
 from modules.utils import ASREnum
 
 
@@ -111,6 +112,7 @@ class WhisperAPI(ASRBase):
     """
 
     def __init__(self, OpenAI_config: dict):
+        from openai import OpenAI
         super().__init__(ASREnum.WhisperAPI, OpenAI_config.get("asr_model", "whisper-1"))
         self.api_key = OpenAI_config.get("api_key", None)
         if not self.api_key:
@@ -164,6 +166,43 @@ class WhisperAPI(ASRBase):
             raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
         finally:
             print("OpenAI connection check finished.")
+
+
+class BaiduASR(ASRBase):
+    """
+    通过百度API调用百度语音识别进行语音识别
+
+    API文档参考：https://ai.baidu.com/ai-doc/SPEECH/0lbxfnc9b
+    注：由于使用了百度SDK(baidu-aip)，因此不需要手动进行OAuth2.0认证
+    """
+
+    def __init__(self, Baidu_config: dict):
+        from aip import AipSpeech
+        super().__init__(ASREnum.Baidu_ASR, Baidu_config.get("asr_model", "baidu-1"))
+        self.app_id = Baidu_config.get("app_id", None)
+        self.api_key = Baidu_config.get("api_key", None)
+        self.secret_key = Baidu_config.get("secret_key", None)
+        if not self.app_id or not self.api_key or not self.secret_key:
+            raise ValueError("Baidu app_id, api_key or secret_key is not set! Please check your 'config.json' file.")
+        self.host = AipSpeech(self.app_id, self.api_key, self.secret_key)
+
+    def transcribe(self, audio: PathLike) -> str:
+        """
+        语音识别
+
+        该方法调用百度的语音识别API，将语音文件转换为文本。
+        :param audio: PathLike 语音文件路径
+        :return: str 识别结果
+        """
+        if not os.path.exists(audio):
+            raise FileNotFoundError("Audio file not found!")
+        with open(audio, "rb") as file:
+            audioFile = file.read()
+        try:
+            responseDict = self.host.asr(audioFile, options={"dev_pid": 1537})
+            return responseDict.get("result", [""])[0]
+        except Exception as e:
+            raise e
 
 
 if __name__ == '__main__':

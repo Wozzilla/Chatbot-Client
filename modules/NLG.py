@@ -1,11 +1,11 @@
 """该文件定义了聊天机器人的后端类"""
+import json
 from abc import abstractmethod
 from urllib.parse import urljoin
 
 import requests
-from openai import OpenAI
 
-from modules.utils import NLGEnum
+from modules.utils import NLGEnum, Configs, ChatStruct
 
 
 class NLGBase:
@@ -38,14 +38,22 @@ class NLGBase:
         """
         pass
 
-    def historyConverter(self, history: [[str, str]], prompt: str = None):
+    @abstractmethod
+    def checkConnection(self):
         """
-        将[[str, str]...]形式的历史记录转换为[{"role": "user", "content": ""}, {"role": "assistant", "message": ""}...]的格式，
+        检查与Host的连接状态
+        :return: bool 是否连接成功
+        """
+        pass
+
+    def historyConverter(self, history: [[str, str]], prompt: str = None) -> list[ChatStruct]:
+        """
+        将[[str, str]...]形式的历史记录转换为[{"role": "user", "content": ""}, {"role": "assistant", "content": ""}...]的格式，
         使用场景是将gradio的Chatbot聊天记录格式转换为ChatGPT/ChatGLM3的聊天记录格式
         :param history: [[str, str]...] 分别为用户输入和机器人回复(先前的)
         :param prompt: str 提示语(用于指定机器人的身份，有助于提高针对特定领域问题的效果，允许为空)
-        :return: [{"role": "user", "content": ""}, {"role": "assistant", "message": ""}...]的格式的历史记录，注意，该结果不包括
-        本次的用户输入
+        :return: [{"role": "user", "content": ""}, {"role": "assistant", "content": ""}...]的格式的历史记录，注意，该结果不包括
+        本次的用户输入，仅转换了历史记录
         """
         sessionPrompt = prompt if prompt else self.prompt
         sessionHistory = [{"role": "system", "content": sessionPrompt}] if sessionPrompt else []
@@ -115,7 +123,7 @@ class ChatGLM(NLGBase):
                 url=urljoin(self.host, 'continuedQuery'),
                 params={"secret": self.secret},
                 json={"history": sessionHistory, "message": message},
-                timeout=100
+                timeout=50
             )
         except requests.exceptions.Timeout:
             raise TimeoutError("Connection to ChatGLM timed out, please check your network status.")
@@ -152,11 +160,13 @@ class ChatGPT(NLGBase):
     """
 
     def __init__(self, OpenAI_config: dict, prompt: str = None):
+        from openai import OpenAI
         super().__init__(NLGEnum.ChatGPT, OpenAI_config.get("gpt_model", "gpt-3.5-turbo"), prompt)
         self.api_key = OpenAI_config.get("api_key", None)
         if not self.api_key:
             raise ValueError("OpenAI api_key is not set! Please check your 'config.json' file.")
         self.host = OpenAI(api_key=self.api_key)
+        self.checkConnection()
 
     def singleQuery(self, message: str, prompt: str = None) -> str:
         """
@@ -212,14 +222,132 @@ class ChatGPT(NLGBase):
                 timeout=10
             )
             if not response.status_code == 200:
-                raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
+                raise ConnectionError(f"Connection to {self.model} failed, please check your network and API status.")
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
-            raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
+            raise ConnectionError(f"Connection to {self.model} failed, please check your network and API status.")
         finally:
             print("OpenAI connection check finished.")
 
 
+class ERNIEBot(NLGBase):
+    """
+    通过API调用文心一言 ERNIE-Bot 进行问答
+
+    API文档参考：https://cloud.baidu.com/doc/WENXINWORKSHOP/s/clntwmv7t
+    """
+
+    queryURL = {
+        "ERNIE-Bot 4.0": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro",
+        "ERNIE-Bot-8K": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie_bot_8k",
+        "ERNIE-Bot": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions"
+    }
+
+    def __init__(self, Baidu_config: dict, prompt: str = None):
+        super().__init__(NLGEnum.ERNIE_Bot, Baidu_config.get("nlg_model", "ERNIE-Bot 4.0"), prompt)
+        self.api_key = Baidu_config.get("api_key", None)
+        self.secret_key = Baidu_config.get("secret_key", None)
+        self.access_token = Baidu_config.get("access_token", None)
+        if not self.api_key or not self.secret_key:
+            raise ValueError("Baidu api_key or secret_key is not set! Please check your 'config.json' file.")
+        if not self.access_token:
+            self.OAuth()
+        self.checkConnection()
+
+    def OAuth(self) -> str:
+        """
+        执行百度OAuth2.0认证，获取access_token并写入Configs和self.access_token，若已有则覆盖
+        :return: str access_token
+        """
+        response = requests.post(
+            url="https://aip.baidubce.com/oauth/2.0/token",
+            headers={'Content-Type': 'application/json', 'Accept': 'application/json'},
+            params={
+                "client_id": self.api_key,
+                "client_secret": self.secret_key,
+                "grant_type": "client_credentials"
+            }
+        )
+        access_token = response.json().get("access_token")
+        Configs["Baidu"]["nlg"]["access_token"] = access_token
+        self.access_token = access_token
+        return access_token
+
+    def singleQuery(self, message: str, prompt: str = None) -> str:
+        sessionPrompt = prompt if prompt else self.prompt
+        sessionMessage = [
+            {"role": "system", "content": sessionPrompt},
+            {"role": "user", "content": message}
+        ] if sessionPrompt else [
+            {"role": "user", "content": message}
+        ]
+        try:
+            response = requests.post(
+                url=self.queryURL[self.model],
+                headers={'Content-Type': 'application/json'},
+                params={"access_token": self.access_token},
+                data=json.dumps({"messages": sessionMessage}),
+                timeout=20
+            )
+            responseJson = json.loads(response.text)
+            if responseJson.get("error_code") == 110:  # 根据百度API文档，110为access_token过期，重新请求即可
+                self.OAuth()
+                return self.singleQuery(message, prompt)
+        except requests.exceptions.Timeout:
+            raise TimeoutError("Connection to 'aip.baidubce.com' timed out, please check your network status.")
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("Connection to 'aip.baidubce.com' failed, please check your network status.")
+        return responseJson.get("result")
+
+    def continuedQuery(self, message, history: [[str, str]], prompt: str = None):
+        """
+        进行带有历史记录的查询
+        """
+        sessionHistory = self.historyConverter(history, prompt)
+        sessionHistory.append({"role": "user", "content": message})
+        try:
+            response = requests.post(
+                url=self.queryURL[self.model],
+                headers={'Content-Type': 'application/json'},
+                params={"access_token": self.access_token},
+                data=json.dumps({"messages": sessionHistory}),
+                timeout=20
+            )
+            responseJson = json.loads(response.text)
+            if responseJson.get("error_code") == 110:  # 根据百度API文档，110为access_token过期，重新请求即可
+                self.OAuth()
+                return self.continuedQuery(message, history, prompt)
+        except requests.exceptions.Timeout:
+            raise TimeoutError("Connection to 'aip.baidubce.com' timed out, please check your network status.")
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("Connection to 'aip.baidubce.com' failed, please check your network status.")
+        return responseJson.get("result")
+
+    def checkConnection(self):
+        """
+        检查与OpenAI的连接状态(通过测试Chat API)
+        :return: bool 是否连接成功
+        """
+        try:
+            response = requests.post(
+                url=self.queryURL["ERNIE-Bot"],
+                headers={'Content-Type': 'application/json'},
+                params={"access_token": self.access_token},
+                data=json.dumps({"messages": [{"role": "user", "content": "说“你好”"}]}),
+                timeout=20
+            )
+            responseJson = json.loads(response.text)
+            if responseJson.get("error_code") == 110:  # 根据百度API文档，110为access_token过期，重新请求即可
+                self.OAuth()
+                return self.checkConnection()
+        except requests.exceptions.Timeout:
+            raise TimeoutError("Connection to 'aip.baidubce.com' timed out, please check your network status.")
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("Connection to 'aip.baidubce.com' failed, please check your network status.")
+        finally:
+            print("ERNIE-Bot connection check finished.")
+
+
 if __name__ == '__main__':
-    raise NotImplementedError("This module is not runnable!")
+    raise RuntimeError("This module is not executable!")
