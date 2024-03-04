@@ -41,7 +41,7 @@ def getMacAddress():
     return macAddress
 
 
-class ChatStruct(TypedDict):
+class Message(TypedDict):
     """标准的一次发言的结构"""
     role: Literal["user", "assistant", "system"]
     content: str
@@ -49,9 +49,10 @@ class ChatStruct(TypedDict):
 
 class NLGEnum(Enum):
     """聊天机器人类型枚举"""
-    ChatGPT = 0
-    ChatGLM = 1
-    ERNIE_Bot = 2
+    ChatGPT = 0  # OpenAI ChatGPT
+    ChatGLM = 1  # 自行部署的ChatGLM
+    ERNIE_Bot = 2  # 百度文心一言
+    Qwen = 3  # 阿里通义千问
 
 
 class ASREnum(Enum):

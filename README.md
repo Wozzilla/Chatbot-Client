@@ -19,8 +19,8 @@
   * [x] [ASR - 百度智能云](https://cloud.baidu.com/doc/SPEECH/s/qlcirqhz0)
 * NLG：
   * [x] [GPT - OpenAI](https://platform.openai.com/docs/guides/text-generation)
-  * [x] [ERNIE-Bot(文心一言) - 百度千帆](https://cloud.baidu.com/doc/WENXINWORKSHOP/s/flfmc9do2)
-  * [ ] [通义千问 - 阿里云]()
+  * [x] [文心一言 - 百度千帆](https://cloud.baidu.com/doc/WENXINWORKSHOP/s/flfmc9do2)
+  * [x] [通义千问 - 阿里云](https://help.aliyun.com/zh/dashscope/developer-reference/api-details)
 * TTS：
   * [x] [TTS - OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
   * [x] [TTS - 百度智能云](https://cloud.baidu.com/doc/SPEECH/s/mlciskuqn)

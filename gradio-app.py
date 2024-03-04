@@ -1,12 +1,14 @@
 """本文件为整个项目的主文件，并使用gradio搭建界面"""
 import subprocess
+import traceback
+
 import gradio as gr
 from modules.NLG import *
 from modules.ASR import *
 from modules.TTS import *
 from modules import utils
 
-nlgService = ERNIEBot(utils.Configs["Baidu"]["nlg"])
+nlgService = Qwen(utils.Configs["Aliyun"])
 asrService = BaiduASR(utils.Configs["Baidu"]["asr"])
 ttsService = BaiduTTS(utils.Configs["Baidu"]["tts"])
 
@@ -71,91 +73,96 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3
             return "", chatHistory
 
 
-        def switchNLG(selectService: str):
+        def switchNLG(selectServiceName: str):
             """
             切换NLG模型
-            :param selectService: str NLG模型名称
+            :param selectServiceName: str NLG模型名称
             :return: str NLG模型名称
             """
             global nlgService, nlgSwitch
-            currentService = nlgService.type.name  # 当前的NLG模型
-            if selectService == currentService:
-                return currentService
+            currentServiceName = nlgService.type.name  # 当前的NLG模型名称
+            if selectServiceName == currentServiceName:
+                return currentServiceName
             else:  # 尝试切换模型
                 try:
-                    if selectService == NLGEnum.ChatGPT.name:
+                    if selectServiceName == NLGEnum.ChatGPT.name:
                         tempService = ChatGPT(utils.Configs["OpenAI"])
-                    elif selectService == NLGEnum.ChatGLM.name:
+                    elif selectServiceName == NLGEnum.ChatGLM.name:
                         tempService = ChatGLM(utils.Configs["ChatGLM"])
-                    elif selectService == NLGEnum.ERNIE_Bot.name:
+                    elif selectServiceName == NLGEnum.ERNIE_Bot.name:
                         tempService = ERNIEBot(utils.Configs["Baidu"]["nlg"])
+                    elif selectServiceName == NLGEnum.Qwen.name:
+                        tempService = Qwen(utils.Configs["Aliyun"])
                     else:  # 未知的模型选择，不执行切换
-                        gr.Warning(f"未知的NLG模型，将不进行切换，当前：{currentService}")
-                        return currentService
+                        gr.Warning(f"未知的NLG模型，将不进行切换，当前：{currentServiceName}")
+                        return currentServiceName
                     nlgService = tempService
                     gr.Info(f"模型切换成功，当前：{nlgService.type.name}")
                     return nlgService.type.name
                 except Exception:
+                    traceback.print_exc()
                     gr.Warning("模型切换失败，请检查网络连接或模型配置")
-                    return currentService
+                    return currentServiceName
 
 
-        def switchASR(selectService: str):
+        def switchASR(selectServiceName: str):
             """
             切换ASR模型
-            :param selectService: str ASR模型名称
+            :param selectServiceName: str ASR模型名称
             :return: str ASR模型名称
             """
             global asrService, audioInput
-            currentService = asrService.type.name  # 当前的ASR模型
-            if selectService == currentService:
-                return currentService
+            currentServiceName = asrService.type.name  # 当前的ASR模型
+            if selectServiceName == currentServiceName:
+                return currentServiceName
             else:  # 尝试切换模型
                 try:
-                    if selectService == ASREnum.WhisperAPI.name:
+                    if selectServiceName == ASREnum.WhisperAPI.name:
                         tempService = WhisperAPI(utils.Configs["OpenAI"])
-                    elif selectService == ASREnum.Whisper_Finetune.name:
+                    elif selectServiceName == ASREnum.Whisper_Finetune.name:
                         tempService = Whisper(utils.Configs["Whisper"])
-                    elif selectService == ASREnum.Baidu_ASR.name:
+                    elif selectServiceName == ASREnum.Baidu_ASR.name:
                         tempService = BaiduASR(utils.Configs["Baidu"]["asr"])
                     else:  # 未知的模型选择，不执行切换
-                        gr.Warning(f"未知的ASR模型，将不进行切换，当前：{currentService}")
-                        return currentService
+                        gr.Warning(f"未知的ASR模型，将不进行切换，当前：{currentServiceName}")
+                        return currentServiceName
                     asrService = tempService
                     gr.Info(f"模型切换成功，当前：{asrService.type.name}")
                     return asrService.type.name
                 except Exception:
+                    traceback.print_exc()
                     gr.Warning("模型切换失败，请检查网络连接或模型配置")
-                    return currentService
+                    return currentServiceName
 
 
-        def switchTTS(selectService: str):
+        def switchTTS(selectServiceName: str):
             """
             切换TTS模型
-            :param selectService: str TTS模型名称
+            :param selectServiceName: str TTS模型名称
             :return: str TTS模型名称
             """
             global ttsService
-            currentService = ttsService.type.name  # 当前的TTS模型
-            if selectService == currentService:
-                return currentService
+            currentServiceName = ttsService.type.name  # 当前的TTS模型
+            if selectServiceName == currentServiceName:
+                return currentServiceName
             else:  # 尝试切换模型
                 try:
-                    if selectService == TTSEnum.OpenAI_TTS.name:
+                    if selectServiceName == TTSEnum.OpenAI_TTS.name:
                         tempService = OpenAITTS(utils.Configs["OpenAI"])
-                    elif selectService == TTSEnum.Bert_VITS.name:
+                    elif selectServiceName == TTSEnum.Bert_VITS.name:
                         tempService = BertVITS2(utils.Configs["BertVITS2"])
-                    elif selectService == TTSEnum.Baidu_TTS.name:
+                    elif selectServiceName == TTSEnum.Baidu_TTS.name:
                         tempService = BaiduTTS(utils.Configs["Baidu"]["tts"])
                     else:  # 未知的模型选择，不执行切换
-                        gr.Warning(f"未知的TTS模型，将不进行切换，当前：{currentService}")
-                        return currentService
+                        gr.Warning(f"未知的TTS模型，将不进行切换，当前：{currentServiceName}")
+                        return currentServiceName
                     ttsService = tempService
                     gr.Info(f"模型切换成功，当前：{ttsService.type.name}")
                     return ttsService.type.name
                 except Exception:
+                    traceback.print_exc()
                     gr.Warning("模型切换失败，请检查网络连接或模型配置")
-                    return currentService
+                    return currentServiceName
 
 
         # 按钮绑定事件
