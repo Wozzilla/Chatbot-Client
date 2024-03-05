@@ -4,6 +4,7 @@ from random import randint
 from abc import abstractmethod
 from urllib.parse import urljoin
 
+import google.api_core.exceptions
 import requests
 
 from modules.utils import NLGEnum, Configs, Message
@@ -217,7 +218,7 @@ class ChatGPT(NLGBase):
 
 class ERNIEBot(NLGBase):
     """
-    通过API调用文心一言 ERNIE-Bot 进行问答
+    通过API调用文心一言(ERNIE-Bot)进行问答
 
     API文档参考：https://cloud.baidu.com/doc/WENXINWORKSHOP/s/clntwmv7t
     """
@@ -285,11 +286,12 @@ class ERNIEBot(NLGBase):
             if responseJson.get("error_code") == 110:  # 根据百度API文档，110为access_token过期，重新请求即可
                 self.OAuth()
                 return self.singleQuery(message, prompt)
+            else:
+                return responseJson.get("result")
         except requests.exceptions.Timeout:
             raise TimeoutError("Connect to 'aip.baidubce.com' timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
             raise ConnectionError("Connect to 'aip.baidubce.com' failed, please check your network status.")
-        return responseJson.get("result")
 
     def continuedQuery(self, message, history: [[str, str]], prompt: str = None):
         sessionHistory = self.historyConverter(history, prompt)
@@ -434,6 +436,48 @@ class Qwen(NLGBase):
                     Error message: {response.message}"""
             )
         print("Qwen connection check finished.")
+
+
+class Gemini(NLGBase):
+    """
+    通过API调用Gemini进行问答
+
+    API文档参考：https://ai.google.dev/tutorials/python_quickstart
+    """
+    import google.generativeai as genai
+    host = genai  # 根据官方demo，似乎genai应为单例对象，因此此处将其设计为类变量
+
+    def __init__(self, Google_config: dict, prompt: str = None):
+        super().__init__(NLGEnum.Gemini, Google_config.get("nlg_model", "gemini-pro"), prompt)
+        self.api_key = Google_config.get("api_key", None)
+        if not self.api_key:
+            raise ValueError("Gemini api_key is not set! Please check your 'config.json' file.")
+        self.host.configure(api_key=self.api_key)
+        self.checkConnection()
+
+    def singleQuery(self, message: str, prompt: str = None) -> str:
+        """
+        看起来Genimi的API并不支持单独提供prompt，实际上prompt参数并未使用
+        """
+        try:
+            model = self.host.GenerativeModel(self.model)
+            response = model.generate_content(
+                contents=[message],
+            )
+            print(response.candidates)
+            return response.text
+        except google.api_core.exceptions.Unauthenticated:
+            raise ConnectionRefusedError("Connect to Gemini failed due to unauthenticated, please check your API key.")
+        except google.api_core.exceptions.RetryError:
+            raise TimeoutError("Connect to Gemini timed out, please check your network status and make sure Gemini is available in your region.")
+        except google.api_core.exceptions.ServiceUnavailable:
+            raise ConnectionError("Connect to Gemini failed, please check your network status.")
+
+    def continuedQuery(self, message: str, history: list[list[str, str]], prompt: str = None):
+        pass
+
+    def checkConnection(self):
+        pass
 
 
 if __name__ == '__main__':

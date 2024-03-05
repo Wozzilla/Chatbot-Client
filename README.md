@@ -18,7 +18,10 @@
   * [x] [Whisper - OpenAI](https://platform.openai.com/docs/guides/speech-to-text)
   * [x] [ASR - 百度智能云](https://cloud.baidu.com/doc/SPEECH/s/qlcirqhz0)
 * NLG：
-  * [x] [GPT - OpenAI](https://platform.openai.com/docs/guides/text-generation)
+  * [x] [ChatGPT - OpenAI](https://platform.openai.com/docs/guides/text-generation)
+  * [ ] [Gemini - Google](https://ai.google.dev/tutorials/python_quickstart) 
+    > **[暂时搁置]由于Gemini API的区域限制，我无法完成此部分的开发。**
+    > **[Suspend development]Due to the regional restrictions of Gemini API, I cannot complete the development of this part.**
   * [x] [文心一言 - 百度千帆](https://cloud.baidu.com/doc/WENXINWORKSHOP/s/flfmc9do2)
   * [x] [通义千问 - 阿里云](https://help.aliyun.com/zh/dashscope/developer-reference/api-details)
 * TTS：

@@ -53,6 +53,7 @@ class NLGEnum(Enum):
     ChatGLM = 1  # 自行部署的ChatGLM
     ERNIE_Bot = 2  # 百度文心一言
     Qwen = 3  # 阿里通义千问
+    Gemini = 4  # 谷歌Gemini
 
 
 class ASREnum(Enum):

@@ -30,6 +30,10 @@
       "tts_voice": "度小美"
     }
   },
+  "Google": {
+    "api_key": "",
+    "nlg_model": "gemini-pro"
+  },
   "ChatGLM": {
     "mode": "remote",
     "model": "ChatGLM3",
