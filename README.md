@@ -22,17 +22,25 @@
 * NLG：
   * [x] [ChatGPT - OpenAI](https://platform.openai.com/docs/guides/text-generation)
   * [ ] [Gemini - Google](https://ai.google.dev/tutorials/python_quickstart)
-    > **[暂时搁置]由于Gemini API的区域限制，无法完成该API的适配。**
-    > **[Suspend development]Due to the regional restrictions of Gemini API, I cannot complete the development of this part.**
+    > * **[暂时搁置]由于Gemini API的区域限制，无法完成该API的适配。**
+    > * **[Suspend development]Due to the regional restrictions of Gemini API, I cannot complete the development of this part.**
   * [x] [文心一言 - 百度千帆](https://cloud.baidu.com/doc/WENXINWORKSHOP/s/flfmc9do2)
   * [x] [通义千问 - 阿里云](https://help.aliyun.com/zh/dashscope/developer-reference/api-details)
   * [x] [星火大模型 - 讯飞](https://console.xfyun.cn/services/bm35)
-  * [ ] [ChatGLM - 智谱AI]()
+  * [x] [ChatGLM - 智谱AI](https://open.bigmodel.cn/dev/api)
   * [ ] [Kimi - Moonshot AI]()
   * [ ] [Claude - Anthropic]()
+    > * **[暂时搁置]由于Gemini API的区域限制，无法完成该API的适配。**
+    > * **[Suspend development]Due to the regional restrictions of Gemini API, I cannot complete the development of this part.**
 * TTS：
   * [x] [TTS - OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
   * [x] [TTS - 百度智能云](https://cloud.baidu.com/doc/SPEECH/s/mlciskuqn)
+
+## TODO 改进计划
+
+* [ ] 继续完善前端界面
+* [ ] 将NLG服务调整为流式响应
+* [ ] 多模型同时响应
 
 ## 各项服务的部署
 
@@ -62,12 +70,6 @@
 1. 克隆仓库：`git clone https://github.com/Wozzilla/Bert-VITS2.git`
 2. 安装该仓库的依赖：`pip install -r requirements.txt`
 3. 通过`python -u tts_server.py`启动服务。
-
-## TODO 改进计划
-
-* [ ] 继续完善前端界面
-* [ ] 将NLG服务调整为流式响应
-* [ ] 多模型同时响应
 
 ## Co-Authors
 

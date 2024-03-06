@@ -133,27 +133,27 @@ class NLGBase:
             return int(token_num)
 
 
-class ChatGLM(NLGBase):
+class Waltz(NLGBase):
     """
-    调用远端ChatGLM进行问答
+    调用远端自部署Waltz进行问答
 
     目标项目来自：https://github.com/THUDM/ChatGLM3
 
     实际部署的项目为：https://github.com/Wozzilla/ChatGLM3，基于ChatGLM原始项目fine-tuning得到的修改版模型
     """
 
-    def __init__(self, ChatGLM_config: dict, prompt: str = None):
-        super().__init__(NLGEnum.ChatGLM, ChatGLM_config.get("model", "NLG/ChatGLM3"), prompt)
+    def __init__(self, Waltz_config: dict, prompt: str = None):
+        super().__init__(NLGEnum.ChatGLM, Waltz_config.get("model", "Waltz"), prompt)
         self.host, self.secret = None, None
-        self.mode = ChatGLM_config.get("mode", "remote")
+        self.mode = Waltz_config.get("mode", "remote")
         if self.mode == "remote":
-            self.host = ChatGLM_config.get("host", None)
-            self.secret = ChatGLM_config.get("secret", None)
+            self.host = Waltz_config.get("host", None)
+            self.secret = Waltz_config.get("secret", None)
             if not self.host:
-                raise ValueError("ChatGLM host is not set! Please check your 'config.json' file.")
+                raise ValueError("Waltz host is not set! Please check your 'config.json' file.")
             self.checkConnection()
         else:
-            raise NotImplementedError("ChatGLM local mode is not implemented yet!")
+            raise NotImplementedError("Waltz local mode is not implemented yet!")
 
     def singleQuery(self, message: str, prompt: str = None) -> str:
         session_prompt = prompt if prompt else self.prompt
@@ -165,9 +165,9 @@ class ChatGLM(NLGBase):
                 timeout=20
             )
         except requests.exceptions.Timeout:
-            raise TimeoutError("Connect to ChatGLM timed out, please check your network status.")
+            raise TimeoutError("Connect to Waltz timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
-            raise ConnectionError("Connect to ChatGLM failed, please check your host and secret.")
+            raise ConnectionError("Connect to Waltz failed, please check your host and secret.")
         return response.json().get("content", "")
 
     def continuedQuery(self, message: str, history: list[list[str, str]], prompt: str = None) -> str:
@@ -180,9 +180,9 @@ class ChatGLM(NLGBase):
                 timeout=50
             )
         except requests.exceptions.Timeout:
-            raise TimeoutError("Connect to ChatGLM timed out, please check your network status.")
+            raise TimeoutError("Connect to Waltz timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
-            raise ConnectionError("Connect to ChatGLM failed, please check your host and secret.")
+            raise ConnectionError("Connect to Waltz failed, please check your host and secret.")
         return response.json().get("content", "")
 
     def checkConnection(self):
@@ -205,7 +205,7 @@ class ChatGLM(NLGBase):
         except requests.exceptions.ConnectionError:
             raise ConnectionError(f"Connect to {self.model} failed, please check your host and secret.")
         finally:
-            print("ChatGLM remote mode connection check finished.")
+            print("Waltz remote mode connection check finished.")
 
 
 class ChatGPT(NLGBase):
@@ -277,6 +277,105 @@ class ChatGPT(NLGBase):
             raise e
         finally:
             print("OpenAI connection check finished.")
+
+
+class ChatGLM(NLGBase):
+    """
+    通过API调用ChatGLM进行问答
+
+    API文档参考：https://open.bigmodel.cn/dev/api#sdk
+    """
+    model_list = ["glm-3-turbo", "glm-4", "glm-4v"]
+
+    def __init__(self, ZhipuAI_config: dict, prompt: str = None):
+        from zhipuai import ZhipuAI
+        super().__init__(NLGEnum.ChatGLM, ZhipuAI_config.get("nlg_model", "glm-4"), prompt)
+        self.api_key = ZhipuAI_config.get("api_key", None)
+        if not self.api_key:
+            raise ValueError("ZhipuAI api_key is not set! Please check your 'config.json' file.")
+        if self.model not in self.model_list:
+            raise ValueError(f"Unsupported ChatGLM model: '{self.model}', currently only support {self.model_list}")
+        self.host = ZhipuAI(api_key=self.api_key)
+        self.checkConnection()
+
+    def singleQuery(self, message: str, prompt: str = None) -> str:
+        from zhipuai import ZhipuAIError
+        session_prompt = prompt if prompt else self.prompt
+        session_message = [
+            Message(role="system", content=session_prompt),
+            Message(role="user", content=message)
+        ] if session_prompt else [
+            Message(role="user", content=message)
+        ]
+        try:
+            response = self.host.chat.completions.create(
+                model=self.model,
+                messages=session_message
+            )
+            return response.choices[0].message.content
+        except ZhipuAIError as e:
+            raise ConnectionError(f"Connect to {self.model} failed, {e}")
+
+    def streamSingleQuery(self, message: str, prompt: str = None) -> str:
+        from zhipuai import ZhipuAIError
+        session_prompt = prompt if prompt else self.prompt
+        session_message = [
+            Message(role="system", content=session_prompt),
+            Message(role="user", content=message)
+        ] if session_prompt else [
+            Message(role="user", content=message)
+        ]
+        try:
+            response = self.host.chat.completions.create(
+                model=self.model,
+                messages=session_message,
+                stream=True
+            )
+            for chunk in response:
+                yield chunk.choices[0].delta.content
+        except ZhipuAIError as e:
+            raise ConnectionError(f"Connect to {self.model} failed, {e}")
+
+    def continuedQuery(self, message: str, history: list[list[str, str]], prompt: str = None):
+        from zhipuai import ZhipuAIError
+        session_history = self.converterHistory(history, prompt)
+        session_history.append(Message(role="user", content=message))
+        try:
+            response = self.host.chat.completions.create(
+                model=self.model,
+                messages=session_history
+            )
+            return response.choices[0].message.content
+        except ZhipuAIError as e:
+            raise ConnectionError(f"Connect to {self.model} failed, {e}")
+
+    def streamContinuedQuery(self, message: str, history: list[list[str, str]], prompt: str = None):
+        from zhipuai import ZhipuAIError
+        session_history = self.converterHistory(history, prompt)
+        session_history.append(Message(role="user", content=message))
+        try:
+            response = self.host.chat.completions.create(
+                model=self.model,
+                messages=session_history,
+                stream=True
+            )
+            for chunk in response:
+                yield chunk.choices[0].delta.content
+        except ZhipuAIError as e:
+            raise ConnectionError(f"Connect to {self.model} failed, {e}")
+
+    def checkConnection(self):
+        try:
+            response = self.host.chat.completions.create(
+                model=self.model,
+                messages=[Message(role="user", content="说“你好！”")]
+            )
+            if re.match(".*你好.*", response.choices[0].message.content):
+                print("ChatGLM connection check finished.")
+            else:
+                raise ConnectionError("Connect to ChatGLM failed, please check your network status and API config.")
+        except Exception as e:
+            raise ConnectionError(f"Connect to ChatGLM failed, {e}")
 
 
 class ERNIEBot(NLGBase):
@@ -408,7 +507,7 @@ class Qwen(NLGBase):
     API文档参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
     """
     from dashscope import Generation
-    model_name: dict[str, str] = {
+    model_dict: dict[str, str] = {
         "qwen-turbo": Generation.Models.qwen_turbo,
         "qwen-plus": Generation.Models.qwen_plus,
         "qwen-max": Generation.Models.qwen_max,
@@ -421,7 +520,7 @@ class Qwen(NLGBase):
         self.api_key = Aliyun_config.get("api_key", None)
         if not self.api_key:
             raise ValueError("Aliyun api_key is not set! Please check your 'config.json' file.")
-        if self.model not in self.model_name.keys():
+        if self.model not in self.model_dict.keys():
             raise ValueError(f"Unsupported Qwen model: '{self.model}', please check your 'config.json' file.")
         self.checkConnection()
 
@@ -436,7 +535,7 @@ class Qwen(NLGBase):
             Message(role=Role.USER, content=message)
         ]
         response = Generation.call(
-            model=self.model_name[self.model],
+            model=self.model_dict[self.model],
             api_key=self.api_key,
             messages=session_message,
             seed=randint(0, 10000),
@@ -459,7 +558,7 @@ class Qwen(NLGBase):
         session_history = self.converterHistory(history, prompt)
         session_history.append(Message(role=Role.USER, content=message))
         response = Generation.call(
-            model=self.model_name[self.model],
+            model=self.model_dict[self.model],
             api_key=self.api_key,
             messages=session_history,
             seed=randint(0, 10000),
@@ -484,7 +583,7 @@ class Qwen(NLGBase):
         from dashscope.api_entities.dashscope_response import Role
         session_message = [Message(role=Role.USER, content="说“你好”")]
         response = Generation.call(
-            model=self.model_name[self.model],
+            model=self.model_dict[self.model],
             api_key=self.api_key,
             messages=session_message,
             result_format='message'
@@ -684,7 +783,7 @@ class Spark(NLGBase):
     def checkConnection(self):
         try:
             result = self.singleQuery("说“你好”")
-            if result:
+            if re.match(".*你好.*", result):
                 print("Spark connection check finished.")
         except ConnectionError as e:
             raise e

@@ -1,4 +1,5 @@
 """本文件中声明了一些常用的函数与全局变量，供其他模块使用。"""
+from urllib.parse import urljoin
 from datetime import datetime
 from json import load, dump
 from enum import Enum
@@ -8,6 +9,8 @@ import uuid
 from time import mktime
 from typing import TypedDict, Literal
 from wsgiref.handlers import format_date_time
+
+import requests
 
 try:
     with open('config.json') as cfg:
@@ -33,6 +36,24 @@ def getAvatars() -> tuple[str, str]:
         "https://patchwiki.biligame.com/images/ys/a/a7/e9o4gu6ztf7zytnvvkeoerbevkjfwjr.png",
         "https://patchwiki.biligame.com/images/ys/6/6a/goj6bb8yj190midok60n2fbkk872090.png"
     )
+
+
+def getBackground(source: Literal["Bing", "Lorem Picsum", "Unsplash"]) -> str:
+    """
+    返回随机背景图片的url链接
+    :param source: str 图片来源
+    :return: str 图片url
+    """
+    if source == "Bing":
+        response = requests.get("https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN")
+        if response.status_code == 200:
+            return urljoin("https://cn.bing.com/", response.json()["images"][0]["url"])
+    elif source == "Lorem Picsum":
+        return "https://picsum.photos/1920/1080"
+    elif source == "Unsplash":
+        return "https://source.unsplash.com/random/1920x1080"
+    else:
+        raise ValueError("Invalid source!")
 
 
 def getMacAddress() -> str:
@@ -69,6 +90,7 @@ class NLGEnum(Enum):
     Qwen = 3  # 阿里 通义千问
     Gemini = 4  # 谷歌 Gemini
     Spark = 5  # 讯飞 星火大模型
+    Waltz = 6  # 自部署 Waltz
 
 
 class ASREnum(Enum):

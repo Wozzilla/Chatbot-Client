@@ -6,6 +6,10 @@
     "tts_model": "tts-1",
     "tts_voice": "nova"
   },
+  "ZhipuAI": {
+    "api_key": "",
+    "nlg_model": "glm-4"
+  },
   "Aliyun": {
     "api_key": "",
     "nlg_model": "qwen-max"
@@ -40,9 +44,9 @@
     "api_key": "",
     "nlg_model": "gemini-pro"
   },
-  "ChatGLM": {
+  "Waltz": {
     "mode": "remote",
-    "model": "ChatGLM3",
+    "model": "Waltz",
     "host": "",
     "secret": ""
   },

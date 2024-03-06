@@ -72,3 +72,4 @@ urllib3>=2.1.0
 uvicorn>=0.26.0
 websockets>=11.0.3
 websocket-client~=1.7.0 # 使用讯飞任意API时均需要该库
+zhipuai>=2.0.1 # 使用智谱AI任意API(如ChatGLM)时均需要该库
