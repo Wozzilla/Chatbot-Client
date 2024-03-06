@@ -93,6 +93,10 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Waltz, a chatbot based on ChatGLM3
                         tempService = ERNIEBot(utils.Configs["Baidu"]["nlg"])
                     elif selectServiceName == NLGEnum.Qwen.name:
                         tempService = Qwen(utils.Configs["Aliyun"])
+                    elif selectServiceName == NLGEnum.Gemini.name:
+                        tempService = Gemini(utils.Configs["Google"])
+                    elif selectServiceName == NLGEnum.Spark.name:
+                        tempService = Spark(utils.Configs["XFyun"])
                     else:  # 未知的模型选择，不执行切换
                         gr.Warning(f"未知的NLG模型，将不进行切换，当前：{currentServiceName}")
                         return currentServiceName

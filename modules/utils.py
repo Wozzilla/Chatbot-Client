@@ -1,10 +1,13 @@
 """本文件中声明了一些常用的函数与全局变量，供其他模块使用。"""
+from datetime import datetime
 from json import load, dump
 from enum import Enum
 import os
 import atexit
 import uuid
+from time import mktime
 from typing import TypedDict, Literal
+from wsgiref.handlers import format_date_time
 
 try:
     with open('config.json') as cfg:
@@ -22,7 +25,7 @@ def dumpConfig():
         dump(Configs, cfgContent, ensure_ascii=False, indent=4)
 
 
-def getAvatars():
+def getAvatars() -> tuple[str, str]:
     """
     返回用户头像和bot头像的url链接
     """
@@ -32,17 +35,28 @@ def getAvatars():
     )
 
 
-def getMacAddress():
+def getMacAddress() -> str:
     """
-    获取本机的MAC地址
+    获取本机的MAC地址，以12位十六进制字符串表示，每两位用"-"分隔
     """
     macAddress = uuid.UUID(int=uuid.getnode()).hex[-12:].upper()
     macAddress = '-'.join([macAddress[i:i + 2] for i in range(0, 11, 2)])
     return macAddress
 
 
+def getRFC1123(time: datetime = None) -> str:
+    """
+    获取RFC1123格式的时间戳，默认为当前时间
+    :param time: datetime 时间对象
+    :return: str 时间戳
+    """
+    if not time:
+        time = datetime.now()
+    return format_date_time(mktime(time.timetuple()))
+
+
 class Message(TypedDict):
-    """标准的一次发言的结构"""
+    """按照OpenAI的API格式定义的消息类型，可用于检查消息格式是否正确。"""
     role: Literal["user", "assistant", "system"]
     content: str
 
@@ -51,9 +65,10 @@ class NLGEnum(Enum):
     """聊天机器人类型枚举"""
     ChatGPT = 0  # OpenAI ChatGPT
     ChatGLM = 1  # 自行部署的ChatGLM
-    ERNIE_Bot = 2  # 百度文心一言
-    Qwen = 3  # 阿里通义千问
-    Gemini = 4  # 谷歌Gemini
+    ERNIE_Bot = 2  # 百度 文心一言
+    Qwen = 3  # 阿里 通义千问
+    Gemini = 4  # 谷歌 Gemini
+    Spark = 5  # 讯飞 星火大模型
 
 
 class ASREnum(Enum):

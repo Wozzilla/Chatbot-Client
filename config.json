@@ -15,20 +15,26 @@
       "api_key": "",
       "secret_key": "",
       "access_token": "",
-      "nlg_model": "ERNIE-Bot-8K"
+      "model": "ERNIE-Bot-8K"
     },
     "asr": {
       "app_id": "",
       "api_key": "",
       "secret_key": "",
-      "asr_model": "baidu-1"
+      "model": "baidu-1"
     },
     "tts": {
       "api_key": "",
       "secret_key": "",
       "access_token": "",
-      "tts_voice": "度小美"
+      "voice": "度小美"
     }
+  },
+  "XFyun": {
+    "app_id": "",
+    "api_secret": "",
+    "api_key": "",
+    "nlg_model": "v3.5"
   },
   "Google": {
     "api_key": "",

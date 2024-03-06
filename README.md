@@ -1,6 +1,8 @@
 # Chatbot Client
 
 > 本项目为[Wozzilla](https://github.com/orgs/Wozzilla)的Chatbot项目的客户端，WebUI基于[Gradio](https://www.gradio.app/)搭建，分布式部署与网络通讯基于[Flask](https://github.com/pallets/flask)和[Requests](https://requests.readthedocs.io/en/latest)实现
+>
+> 在适配自行部署的推理端模型Waltz的同时，本项目也逐步适配公开API。
 
 ## 效果展示
 
@@ -19,16 +21,22 @@
   * [x] [ASR - 百度智能云](https://cloud.baidu.com/doc/SPEECH/s/qlcirqhz0)
 * NLG：
   * [x] [ChatGPT - OpenAI](https://platform.openai.com/docs/guides/text-generation)
-  * [ ] [Gemini - Google](https://ai.google.dev/tutorials/python_quickstart) 
-    > **[暂时搁置]由于Gemini API的区域限制，我无法完成此部分的开发。**
+  * [ ] [Gemini - Google](https://ai.google.dev/tutorials/python_quickstart)
+    > **[暂时搁置]由于Gemini API的区域限制，无法完成该API的适配。**
     > **[Suspend development]Due to the regional restrictions of Gemini API, I cannot complete the development of this part.**
   * [x] [文心一言 - 百度千帆](https://cloud.baidu.com/doc/WENXINWORKSHOP/s/flfmc9do2)
   * [x] [通义千问 - 阿里云](https://help.aliyun.com/zh/dashscope/developer-reference/api-details)
+  * [x] [星火大模型 - 讯飞](https://console.xfyun.cn/services/bm35)
+  * [ ] [ChatGLM - 智谱AI]()
+  * [ ] [Kimi - Moonshot AI]()
+  * [ ] [Claude - Anthropic]()
 * TTS：
   * [x] [TTS - OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
   * [x] [TTS - 百度智能云](https://cloud.baidu.com/doc/SPEECH/s/mlciskuqn)
 
-### 客户端
+## 各项服务的部署
+
+### 客户端(本项目)
 
 > 请确保已安装ffplay并配置好环境变量，否则将无法自动播放语音。
 
@@ -58,7 +66,8 @@
 ## TODO 改进计划
 
 * [ ] 继续完善前端界面
-* [ ] 将默认NLG效果改为流式显示
+* [ ] 将NLG服务调整为流式响应
+* [ ] 多模型同时响应
 
 ## Co-Authors
 
