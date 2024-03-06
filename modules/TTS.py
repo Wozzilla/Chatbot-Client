@@ -14,13 +14,13 @@ from modules.utils import TTSEnum, Configs, getMacAddress
 class TTSBase:
     """语音合成的后端类，所有语音合成后端都应该继承自该类"""
 
-    def __init__(self, ttsType: TTSEnum, model: str, voice: str):
-        self.type = ttsType
+    def __init__(self, tts_type: TTSEnum, model: str, voice: str):
+        self.type = tts_type
         self.model = model
         self.voice = voice
-        self.savePath = os.path.join(os.getcwd(), 'download').replace('\\', '/')  # 默认文件下载路径
-        if not os.path.exists(self.savePath):
-            os.mkdir(self.savePath)
+        self.save_path = os.path.join(os.getcwd(), 'download').replace('\\', '/')  # 默认文件下载路径
+        if not os.path.exists(self.save_path):
+            os.mkdir(self.save_path)
 
     @abstractmethod
     def synthesize(self, text) -> PathLike:
@@ -31,7 +31,6 @@ class TTSBase:
         :param text: str 待合成的文本
         :return: PathLike 合成后的语音文件路径
         """
-        pass
 
     @abstractmethod
     def checkConnection(self):
@@ -40,7 +39,6 @@ class TTSBase:
 
         具体实现详见子类
         """
-        pass
 
 
 class BertVITS2(TTSBase):
@@ -54,7 +52,6 @@ class BertVITS2(TTSBase):
         super().__init__(TTSEnum.Bert_VITS, BertVITS2_config.get("model", "Bert-VITS2-Keqing"),
                          BertVITS2_config.get("voice", "刻晴"))
         self.host, self.secret = None, None
-        self.voice = BertVITS2_config.get("voice", "刻晴")
         self.mode = BertVITS2_config.get("mode", "remote")
         if self.mode == "remote":
             self.host = BertVITS2_config.get("host", None)
@@ -63,7 +60,7 @@ class BertVITS2(TTSBase):
                 raise ValueError("Bert-VITS2 host is not set! Please check your 'config.json' file.")
             self.checkConnection()
         else:
-            # 暂未进行本地运行Bert-VITS2的开发(本地运行的话直接部署Bert-VITS2就好了，不需要这套框架)
+            # 暂未进行本地运行Bert-VITS2的开发(本地运行的话直接部署Bert-VITS2就好了，不需要这套前端)
             raise NotImplementedError("Bert-VITS2 local mode is not implemented yet!")
 
     def synthesize(self, text) -> str:
@@ -82,15 +79,15 @@ class BertVITS2(TTSBase):
                 timeout=int(len(text) * 0.6)
             )
             data = response.json()
-            sampleRate = data['sampling_rate']
-            audioData = data['raw']
-            audioData = np.array(audioData, dtype=np.int16)
-            wavwrite(os.path.join(self.savePath, "synthesize.wav"), sampleRate, audioData)
+            sample_rate = data['sampling_rate']
+            audio_data = data['raw']
+            audio_data = np.array(audio_data, dtype=np.int16)
+            wavwrite(os.path.join(self.save_path, "synthesize.wav"), sample_rate, audio_data)
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
             raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
-        return os.path.join(self.savePath, "synthesize.wav").replace('\\', '/')
+        return os.path.join(self.save_path, "synthesize.wav").replace('\\', '/')
 
     def checkConnection(self):
         """
@@ -149,14 +146,14 @@ class FastSpeech(TTSBase):
                 json={"text": text},
                 timeout=20
             )
-            fileData = response.content
-            with open(os.path.join(self.savePath, "synthesize.wav"), "wb") as file:
-                file.write(fileData)
+            file_data = response.content
+            with open(os.path.join(self.save_path, "synthesize.wav"), "wb") as file:
+                file.write(file_data)
         except requests.exceptions.Timeout:
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
             raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
-        return os.path.join(self.savePath, "synthesize.wav").replace('\\', '/')
+        return os.path.join(self.save_path, "synthesize.wav").replace('\\', '/')
 
     def checkConnection(self):
         """
@@ -204,17 +201,17 @@ class OpenAITTS(TTSBase):
         :param text: str 待合成的文本
         :return: str 合成后语音文件的绝对路径
         """
-        filePath = os.path.join(self.savePath, "synthesize.wav").replace('\\', '/')
+        file_path = os.path.join(self.save_path, "synthesize.wav").replace('\\', '/')
         try:
             synthesize = self.host.audio.speech.create(
                 model=self.model,
                 voice=self.voice,
                 input=text
             )
-            synthesize.stream_to_file(filePath)
+            synthesize.stream_to_file(file_path)
         except Exception as e:
             raise e
-        return filePath
+        return file_path
 
     def checkConnection(self):
         """
@@ -258,7 +255,7 @@ class BaiduTTS(TTSBase):
 
     def __init__(self, Baidu_config: dict):
         super().__init__(TTSEnum.Baidu_TTS, Baidu_config.get("tts_model", "Baidu-TTS"),
-                         Baidu_config.get("tts_voice", "度小美"))
+                         Baidu_config.get("voice", "度小美"))
         self.api_key = Baidu_config.get("api_key", None)
         self.secret_key = Baidu_config.get("secret_key", None)
         self.access_token = Baidu_config.get("access_token", None)
@@ -312,12 +309,23 @@ class BaiduTTS(TTSBase):
             raise TimeoutError(f"Connection to {self.model} timed out, please check your network status.")
         except requests.exceptions.ConnectionError:
             raise ConnectionError(f"Connection to {self.model} failed, please check your host and secret.")
-        with open(os.path.join(self.savePath, "synthesize.mp3"), "wb") as file:
+        with open(os.path.join(self.save_path, "synthesize.mp3"), "wb") as file:
             file.write(response.content)
-        return os.path.join(self.savePath, "synthesize.mp3").replace('\\', '/')
+        return os.path.join(self.save_path, "synthesize.mp3").replace('\\', '/')
 
-    def checkConnection(self):  # TODO: 设计检查连接的方法
-        pass
+    def checkConnection(self):
+        """
+        检查与千帆大模型平台的连接状态(通过一次简单的问答，以测试API可用性)
+        """
+        try:
+            requests.post(
+                url="https://tsn.baidu.com/text2audio",
+                headers={'Content-Type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}
+            )  # 该请求缺少参数，但是可以用于检查API是否可用，只要能获取到服务器的返回，即可认为API可用
+        except requests.exceptions.Timeout:
+            raise TimeoutError("Connect to 'tsn.baidu.com' timed out, please check your network status.")
+        finally:
+            print("BaiduTTS connection check finished.")
 
 
 if __name__ == '__main__':

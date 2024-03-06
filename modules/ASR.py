@@ -14,8 +14,8 @@ from modules.utils import ASREnum
 class ASRBase:
     """语音识别后端基类，建议在进行语音识别后端开发时继承该类"""
 
-    def __init__(self, asrType: ASREnum, model: str):
-        self.type = asrType  # 语音识别类型
+    def __init__(self, asr_type: ASREnum, model: str):
+        self.type = asr_type  # 语音识别类型
         self.model = model  # 语音识别模型
 
     @abstractmethod
@@ -26,17 +26,6 @@ class ASRBase:
         该方法将调用实际的语音识别模型，将语音转换为文本，具体参数详见子类。
         :param audio: 语音数据，可能为tuple[int, np.array]或PathLike，具体类型详见子类
         """
-        pass
-
-    @staticmethod
-    def getAllASRModels():
-        """
-        返回当前支持的全部语音识别模型
-        :return dict[ASRBase: list[str]] 语音识别模型字典，key为类，value为该类支持的全部模型列表
-        """
-        return {WhisperAPI: ['whisper-1'],
-                Whisper: ['whisper-tiny', 'whisper-base', 'whisper-small', 'whisper-tiny-finetune',
-                          'whisper-base-finetune']}
 
 
 class Whisper(ASRBase):
@@ -68,13 +57,13 @@ class Whisper(ASRBase):
         :param audio: PathLink 语音文件路径
         :return: str 识别结果
         """
-        sampleRate, raw = wavread(audio)
+        sample_rate, raw = wavread(audio)
         raw = raw.tolist()
         try:
             response = requests.post(
                 url=urljoin(self.host, 'transcribe'),
                 params={"secret": self.secret},
-                json={"sampling_rate": sampleRate, "raw": raw},
+                json={"sampling_rate": sample_rate, "raw": raw},
                 timeout=20
             )
         except requests.exceptions.Timeout:
@@ -129,11 +118,11 @@ class WhisperAPI(ASRBase):
         """
         if not os.path.exists(audio):
             raise FileNotFoundError("Audio file not found!")
-        audioFile = open(audio, "rb")
+        audio_file = open(audio, "rb")
         try:
             transcript = self.host.audio.transcriptions.create(
                 model=self.model,
-                file=audioFile,
+                file=audio_file,
                 response_format="text"
             )
             return str(transcript)
@@ -178,7 +167,7 @@ class BaiduASR(ASRBase):
 
     def __init__(self, Baidu_config: dict):
         from aip import AipSpeech
-        super().__init__(ASREnum.Baidu_ASR, Baidu_config.get("asr_model", "baidu-1"))
+        super().__init__(ASREnum.Baidu_ASR, Baidu_config.get("model", "baidu-1"))
         self.app_id = Baidu_config.get("app_id", None)
         self.api_key = Baidu_config.get("api_key", None)
         self.secret_key = Baidu_config.get("secret_key", None)
@@ -197,10 +186,10 @@ class BaiduASR(ASRBase):
         if not os.path.exists(audio):
             raise FileNotFoundError("Audio file not found!")
         with open(audio, "rb") as file:
-            audioFile = file.read()
+            audio_file = file.read()
         try:
-            responseDict = self.host.asr(audioFile, options={"dev_pid": 1537})
-            return responseDict.get("result", [""])[0]
+            response_dict = self.host.asr(audio_file, options={"dev_pid": 1537})
+            return response_dict.get("result", [""])[0]
         except Exception as e:
             raise e
 
